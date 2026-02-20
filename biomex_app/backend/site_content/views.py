@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -188,12 +189,28 @@ class KitOrderCreateView(APIView):
         serializer = KitOrderRequestCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        kit_order = serializer.save()
+        forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR", "")
+        client_ip = forwarded_for.split(",")[0].strip() if forwarded_for else request.META.get("REMOTE_ADDR")
+        user_agent = (request.META.get("HTTP_USER_AGENT") or "")[:255]
+
+        kit_order = serializer.save(
+            client_ip=client_ip,
+            user_agent=user_agent,
+            geolocation_captured_at=timezone.now(),
+        )
 
         response_payload = {
             "status": "ok",
             "message": "Demande de kit enregistree.",
             "request_id": kit_order.id,
+            "payment_status": kit_order.payment_status,
+            "verification_flags": kit_order.verification_flags,
+            "payment_verification_notes": kit_order.payment_verification_notes,
+            "location": {
+                "latitude": kit_order.latitude,
+                "longitude": kit_order.longitude,
+                "accuracy_meters": kit_order.geolocation_accuracy_meters,
+            },
         }
 
         if kit_order.sample_id:

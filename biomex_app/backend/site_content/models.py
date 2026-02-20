@@ -176,12 +176,88 @@ class KitOrderRequest(TimestampedModel):
         ("cancelled", _("Annule")),
     ]
 
+    PAYMENT_METHOD_CHOICES = [
+        ("orange_money", _("Orange Money")),
+        ("wave", _("Wave")),
+        ("mtn_momo", _("MTN Mobile Money")),
+        ("moov_money", _("Moov Money")),
+        ("card", _("Carte bancaire")),
+        ("bank_transfer", _("Virement bancaire")),
+        ("cash_on_delivery", _("Paiement a la livraison")),
+    ]
+
+    PAYMENT_STATUS_CHOICES = [
+        ("pending", _("En attente")),
+        ("proof_submitted", _("Preuve soumise")),
+        ("verified", _("Verifie")),
+        ("rejected", _("Rejete")),
+        ("manual_review", _("Revision manuelle")),
+    ]
+
     plan = models.CharField(_("plan"), max_length=120)
     full_name = models.CharField(_("nom complet"), max_length=120)
     email = models.EmailField(_("email"), blank=True)
     phone = models.CharField(_("telephone"), max_length=40, blank=True)
     city = models.CharField(_("ville"), max_length=120, blank=True)
     country = models.CharField(_("pays"), max_length=120, default="Senegal", blank=True)
+    quantity = models.PositiveSmallIntegerField(_("quantite"), default=1)
+    unit_price_fcfa = models.PositiveIntegerField(_("prix unitaire FCFA"), default=0)
+    amount_total_fcfa = models.PositiveIntegerField(_("montant total FCFA"), default=0)
+    currency = models.CharField(_("devise"), max_length=8, default="XOF")
+    payment_method = models.CharField(
+        _("methode de paiement"),
+        max_length=30,
+        choices=PAYMENT_METHOD_CHOICES,
+        default="orange_money",
+    )
+    payment_provider = models.CharField(_("operateur paiement"), max_length=80, blank=True)
+    payment_phone = models.CharField(_("telephone paiement"), max_length=40, blank=True)
+    payment_reference = models.CharField(_("reference paiement"), max_length=120, blank=True)
+    payment_last4 = models.CharField(_("4 derniers chiffres carte"), max_length=4, blank=True)
+    payment_status = models.CharField(
+        _("statut paiement"),
+        max_length=20,
+        choices=PAYMENT_STATUS_CHOICES,
+        default="pending",
+    )
+    payment_verified = models.BooleanField(_("paiement verifie"), default=False)
+    payment_verified_at = models.DateTimeField(_("paiement verifie le"), null=True, blank=True)
+    payment_verification_notes = models.TextField(_("notes verification paiement"), blank=True)
+    accepted_terms = models.BooleanField(_("conditions acceptees"), default=False)
+    source = models.CharField(_("source"), max_length=80, default="site_app", blank=True)
+    client_ip = models.GenericIPAddressField(_("ip client"), null=True, blank=True)
+    user_agent = models.CharField(_("user agent"), max_length=255, blank=True)
+    latitude = models.DecimalField(
+        _("latitude"),
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+    )
+    longitude = models.DecimalField(
+        _("longitude"),
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+    )
+    geolocation_accuracy_meters = models.FloatField(
+        _("precision geolocalisation (m)"),
+        null=True,
+        blank=True,
+    )
+    geolocation_source = models.CharField(
+        _("source geolocalisation"),
+        max_length=40,
+        default="browser_gps",
+        blank=True,
+    )
+    geolocation_captured_at = models.DateTimeField(
+        _("geolocalisation capturee le"),
+        null=True,
+        blank=True,
+    )
+    verification_flags = models.JSONField(_("flags verification"), default=list, blank=True)
     message = models.TextField(_("message"), blank=True)
     status = models.CharField(
         _("statut"),

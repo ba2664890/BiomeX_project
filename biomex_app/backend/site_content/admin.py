@@ -72,9 +72,22 @@ class NewsletterSubscriptionAdmin(admin.ModelAdmin):
 
 @admin.register(KitOrderRequest)
 class KitOrderRequestAdmin(admin.ModelAdmin):
-    list_display = ("id", "plan", "full_name", "email", "phone", "status", "created_at")
-    list_filter = ("status", "plan")
-    search_fields = ("full_name", "email", "phone", "sample_id")
+    list_display = (
+        "id",
+        "plan",
+        "quantity",
+        "full_name",
+        "city",
+        "country",
+        "geolocation_accuracy_meters",
+        "amount_total_fcfa",
+        "payment_method",
+        "payment_status",
+        "status",
+        "created_at",
+    )
+    list_filter = ("status", "plan", "payment_method", "payment_status", "currency")
+    search_fields = ("full_name", "email", "phone", "sample_id", "payment_reference")
     ordering = ("-created_at",)
 
 
