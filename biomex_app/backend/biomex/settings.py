@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'nutrition',
     'tracking',
     'recommendations',
+    'site_content',
 ]
 
 MIDDLEWARE = [
