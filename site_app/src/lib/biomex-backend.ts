@@ -1,4 +1,7 @@
-const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
+const DEFAULT_BACKEND_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://biomex-project.onrender.com"
+    : "http://127.0.0.1:8000";
 
 function stripTrailingSlashes(value: string) {
   return value.replace(/\/+$/, "");

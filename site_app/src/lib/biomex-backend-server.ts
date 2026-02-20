@@ -45,16 +45,27 @@ export async function backendPublicRequest<T = unknown>(
       typeof options.body === "string" ? options.body : JSON.stringify(options.body);
   }
 
-  const response = await fetch(buildBiomeXApiUrl(path), init);
-  const raw = await response.text();
-  const parsed = parseJsonSafely(raw);
+  try {
+    const response = await fetch(buildBiomeXApiUrl(path), init);
+    const raw = await response.text();
+    const parsed = parseJsonSafely(raw);
 
-  return {
-    ok: response.ok,
-    status: response.status,
-    data: (parsed as T | null) ?? null,
-    raw,
-  };
+    return {
+      ok: response.ok,
+      status: response.status,
+      data: (parsed as T | null) ?? null,
+      raw,
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Network error while contacting backend.";
+    return {
+      ok: false,
+      status: 503,
+      data: null,
+      raw: message,
+    };
+  }
 }
 
 export function normalizeBackendError(

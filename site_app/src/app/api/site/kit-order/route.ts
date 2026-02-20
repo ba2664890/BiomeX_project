@@ -39,15 +39,17 @@ export async function POST(req: NextRequest) {
   });
 
   if (!response.ok) {
+    const status = response.status >= 400 && response.status < 500 ? response.status : 502;
     return NextResponse.json(
       {
         status: "error",
+        upstreamStatus: response.status,
         message: normalizeBackendError(
           response,
           "La commande du kit a échoué. Veuillez réessayer.",
         ),
       },
-      { status: 502 },
+      { status },
     );
   }
 

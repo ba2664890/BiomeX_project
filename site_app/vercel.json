@@ -4,6 +4,7 @@
   "installCommand": "bun install --frozen-lockfile",
   "buildCommand": "bun run build",
   "env": {
-    "BIOMEX_BACKEND_URL": "https://biomex-backend.onrender.com"
+    "BIOMEX_BACKEND_URL": "https://biomex-project.onrender.com",
+    "NEXT_PUBLIC_BIOMEX_BACKEND_URL": "https://biomex-project.onrender.com"
   }
 }
