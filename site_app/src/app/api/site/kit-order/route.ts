@@ -10,7 +10,24 @@ type KitOrderBody = {
   email?: string;
   phone?: string;
   city?: string;
+  country?: string;
+  quantity?: number;
+  unitPriceFcfa?: number;
+  amountTotalFcfa?: number;
+  currency?: string;
+  paymentMethod?: string;
+  paymentProvider?: string;
+  paymentPhone?: string;
+  paymentReference?: string;
+  paymentLast4?: string;
+  latitude?: number;
+  longitude?: number;
+  geolocationAccuracyMeters?: number;
+  geolocationSource?: string;
+  acceptedTerms?: boolean;
+  source?: string;
   message?: string;
+  metadata?: Record<string, unknown>;
 };
 
 export async function POST(req: NextRequest) {
@@ -26,6 +43,14 @@ export async function POST(req: NextRequest) {
     message?: string;
     request_id?: number;
     status?: string;
+    payment_status?: string;
+    verification_flags?: string[];
+    payment_verification_notes?: string;
+    location?: {
+      latitude?: number;
+      longitude?: number;
+      accuracy_meters?: number;
+    };
   }>("site-content/kit-orders/", {
     method: "POST",
     body: {
@@ -34,7 +59,24 @@ export async function POST(req: NextRequest) {
       email: body.email ?? "",
       phone: body.phone ?? "",
       city: body.city ?? "Dakar",
+      country: body.country ?? "Senegal",
+      quantity: body.quantity ?? 1,
+      unit_price_fcfa: body.unitPriceFcfa ?? 0,
+      amount_total_fcfa: body.amountTotalFcfa ?? 0,
+      currency: body.currency ?? "XOF",
+      payment_method: body.paymentMethod ?? "orange_money",
+      payment_provider: body.paymentProvider ?? "",
+      payment_phone: body.paymentPhone ?? "",
+      payment_reference: body.paymentReference ?? "",
+      payment_last4: body.paymentLast4 ?? "",
+      latitude: body.latitude,
+      longitude: body.longitude,
+      geolocation_accuracy_meters: body.geolocationAccuracyMeters,
+      geolocation_source: body.geolocationSource ?? "browser_gps",
+      accepted_terms: body.acceptedTerms ?? false,
+      source: body.source ?? "site_app_pricing",
       message: body.message ?? "",
+      metadata: body.metadata ?? {},
     },
   });
 
@@ -59,5 +101,9 @@ export async function POST(req: NextRequest) {
       response.data?.message ??
       "Commande enregistrée. Notre équipe vous contacte rapidement.",
     requestId: response.data?.request_id ?? null,
+    paymentStatus: response.data?.payment_status ?? "pending",
+    verificationFlags: response.data?.verification_flags ?? [],
+    paymentVerificationNotes: response.data?.payment_verification_notes ?? "",
+    location: response.data?.location ?? null,
   });
 }
