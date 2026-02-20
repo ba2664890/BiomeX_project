@@ -10,9 +10,13 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
+from .views import health_check
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # Public health check
+    path('api/health/', health_check, name='health-check'),
     
     # JWT Authentication
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
