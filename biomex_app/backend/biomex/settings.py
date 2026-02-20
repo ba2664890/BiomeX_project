@@ -18,6 +18,7 @@ DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -25,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_yasg',
     'rest_framework_simplejwt',
     'corsheaders',
     'users',
@@ -174,3 +176,44 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
+
+# Swagger / OpenAPI
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'JWT Authorization header using the Bearer scheme. Example: "Bearer <token>"',
+        },
+    },
+}
+
+# Jazzmin admin theme
+JAZZMIN_SETTINGS = {
+    'site_title': 'BiomeX Admin',
+    'site_header': 'BiomeX',
+    'site_brand': 'BiomeX',
+    'welcome_sign': 'Bienvenue dans l administration BiomeX',
+    'site_logo_classes': 'img-circle',
+    'navigation_expanded': True,
+    'hide_apps': [],
+    'hide_models': [],
+}
+
+JAZZMIN_UI_TWEAKS = {
+    'theme': 'flatly',
+    'dark_mode_theme': None,
+    'navbar': 'navbar-dark navbar-success',
+    'accent': 'accent-primary',
+    'sidebar': 'sidebar-dark-success',
+    'button_classes': {
+        'primary': 'btn-success',
+        'secondary': 'btn-secondary',
+        'info': 'btn-info',
+        'warning': 'btn-warning',
+        'danger': 'btn-danger',
+        'success': 'btn-success',
+    },
+}
