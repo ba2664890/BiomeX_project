@@ -2,7 +2,9 @@ services:
   - type: web
     name: biomex-backend
     env: python
-    buildCommand: pip install -r requirements.txt && python manage.py makemigrations --noinput && python manage.py migrate --noinput && python manage.py collectstatic --noinput
+    rootDir: biomex_app/backend
+    buildCommand: pip install -r requirements.txt
+    preDeployCommand: python manage.py makemigrations --noinput && python manage.py migrate --noinput --run-syncdb && python manage.py collectstatic --noinput
     startCommand: gunicorn biomex.wsgi:application
     healthCheckPath: /api/health/
     envVars:
