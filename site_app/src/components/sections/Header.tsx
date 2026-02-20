@@ -56,9 +56,10 @@ export default function Header() {
     >
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
         {/* Logo */}
-        <motion.a
-          href="#"
+        <motion.button
+          type="button"
           className="flex items-center gap-3"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
@@ -69,7 +70,7 @@ export default function Header() {
           <span className="text-2xl font-extrabold tracking-tight text-primary">
             BiomeX
           </span>
-        </motion.a>
+        </motion.button>
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-8 lg:flex">

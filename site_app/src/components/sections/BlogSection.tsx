@@ -1,9 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
-const blogPosts = [
+type BlogPost = {
+  category: string;
+  title: string;
+  excerpt: string;
+  image: string;
+  imageAlt: string;
+  href: string;
+};
+
+const fallbackBlogPosts: BlogPost[] = [
   {
     category: "SUPERFOOD",
     title: "Le Mil : Le probiotique naturel ignoré.",
@@ -12,6 +22,7 @@ const blogPosts = [
     image:
       "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=600&h=400&fit=crop",
     imageAlt: "Bol de mil perlé cuit avec des légumes",
+    href: "#science",
   },
   {
     category: "RECHERCHE",
@@ -21,6 +32,7 @@ const blogPosts = [
     image:
       "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&h=400&fit=crop",
     imageAlt: "Champs de fonio doré au soleil",
+    href: "#comment-ca-marche",
   },
   {
     category: "TECH",
@@ -30,6 +42,7 @@ const blogPosts = [
     image:
       "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=600&h=400&fit=crop",
     imageAlt: "Laboratoire moderne avec séquençage ADN",
+    href: "#pricing",
   },
 ];
 
@@ -53,6 +66,48 @@ const itemVariants = {
 };
 
 export default function BlogSection() {
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(fallbackBlogPosts);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadBackendContent = async () => {
+      try {
+        const response = await fetch("/api/site/dashboard", { cache: "no-store" });
+        if (!response.ok) return;
+
+        const payload = (await response.json()) as {
+          data?: { blogCards?: BlogPost[] };
+        };
+
+        const cards = payload.data?.blogCards;
+        if (!cancelled && cards && cards.length > 0) {
+          setBlogPosts(cards.slice(0, 3));
+        }
+      } catch {
+        // Keep fallback cards when backend is unavailable.
+      }
+    };
+
+    void loadBackendContent();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleLink = (href: string) => {
+    if (href.startsWith("#")) {
+      const section = document.querySelector(href);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+      return;
+    }
+
+    window.open(href, "_blank");
+  };
+
   return (
     <section id="blog" className="py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -71,13 +126,14 @@ export default function BlogSection() {
               Derniers articles sur l&apos;alimentation africaine.
             </p>
           </div>
-          <a
+          <button
+            type="button"
             className="font-bold text-primary hover:underline inline-flex items-center gap-2 group"
-            href="#"
+            onClick={() => handleLink("#faq")}
           >
-            Voir tout le blog
+            Voir les analyses
             <span className="group-hover:translate-x-1 transition-transform">→</span>
-          </a>
+          </button>
         </motion.div>
 
         <motion.div
@@ -94,6 +150,7 @@ export default function BlogSection() {
               className="group cursor-pointer"
               whileHover={{ y: -5 }}
               transition={{ duration: 0.3 }}
+              onClick={() => handleLink(post.href)}
             >
               <div className="overflow-hidden rounded-2xl">
                 <div className="aspect-video bg-slate-200 overflow-hidden">

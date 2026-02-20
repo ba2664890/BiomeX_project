@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Sparkles, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 
 const features = [
   "Kit de prélèvement stabilisé 14 jours",
@@ -46,6 +48,52 @@ const containerVariants = {
 };
 
 export default function PricingSection() {
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const orderKit = async (planName: string) => {
+    try {
+      setLoadingPlan(planName);
+      const response = await fetch("/api/site/kit-order", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ plan: planName }),
+      });
+
+      const data = (await response.json()) as {
+        status?: string;
+        message?: string;
+        sampleId?: string | null;
+        estimatedDelivery?: string | null;
+      };
+
+      if (!response.ok || data.status !== "ok") {
+        throw new Error(data.message ?? "Échec de la commande.");
+      }
+
+      toast({
+        title: "Commande enregistrée",
+        description: data.sampleId
+          ? `ID échantillon: ${data.sampleId}. Livraison estimée: ${data.estimatedDelivery ?? "N/A"}.`
+          : data.message ?? "Votre kit est en cours de traitement.",
+      });
+    } catch (error) {
+      toast({
+        title: "Commande impossible",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Une erreur est survenue. Réessayez dans un instant.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
+  const contactB2B = () => {
+    window.open("mailto:partenariats@biomex.ai?subject=Demande%20partenariat%20B2B", "_blank");
+  };
+
   return (
     <section id="pricing" className="bg-secondary py-24">
       <div className="mx-auto max-w-5xl px-6">
@@ -116,13 +164,15 @@ export default function PricingSection() {
 
               <Button
                 size="lg"
+                disabled={loadingPlan === plan.name}
                 className={`w-full rounded-full py-5 text-base font-bold transition-transform ${
                   plan.popular
                     ? "bg-accent text-white shadow-xl shadow-accent/30 hover:scale-[1.02]"
                     : "bg-primary text-white shadow-xl shadow-primary/20 hover:scale-[1.02]"
                 }`}
+                onClick={() => orderKit(plan.name)}
               >
-                Commander maintenant
+                {loadingPlan === plan.name ? "Commande en cours..." : "Commander maintenant"}
               </Button>
 
               <p className="mt-4 text-xs text-center text-slate-500">
@@ -148,6 +198,7 @@ export default function PricingSection() {
           <Button
             variant="outline"
             className="mt-4 rounded-full border-primary/20 text-primary hover:bg-primary/5"
+            onClick={contactB2B}
           >
             Contacter l&apos;équipe B2B
           </Button>

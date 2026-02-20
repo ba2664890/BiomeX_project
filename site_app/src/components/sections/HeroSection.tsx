@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Play, Verified, Microscope, TrendingUp, Leaf, Shield, Award, Users, Sparkles, Dna, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
@@ -21,28 +21,22 @@ const trustBadges = [
   { icon: Users, label: "2 400+ clients" },
 ];
 
-const floatingCards = [
+const floatingCardTemplates = [
   {
     icon: TrendingUp,
     title: "Score Gut-Health",
-    value: "82/100",
-    change: "+12%",
     color: "from-green-500 to-emerald-600",
     position: "top-16 -left-4 lg:top-24 lg:-left-12",
   },
   {
     icon: Leaf,
     title: "Aliment détecté",
-    value: "Fonio",
-    subtitle: "Optimisation +14%",
     color: "from-accent to-yellow-600",
     position: "bottom-16 right-0 lg:bottom-32 lg:-right-8",
   },
   {
     icon: Dna,
     title: "Bactéries",
-    value: "1,247",
-    subtitle: "espèces analysées",
     color: "from-primary to-teal-600",
     position: "top-1/2 -left-2 lg:-left-8 -translate-y-1/2",
   },
@@ -70,6 +64,70 @@ const itemVariants = {
 
 export default function HeroSection() {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [heroData, setHeroData] = useState({
+    overallScore: 82,
+    speciesCount: 1247,
+    recommendationsCount: 12,
+    topSuperfood: "Fonio",
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadHeroData = async () => {
+      try {
+        const response = await fetch("/api/site/dashboard", { cache: "no-store" });
+        if (!response.ok) return;
+
+        const payload = (await response.json()) as {
+          data?: {
+            hero?: {
+              overallScore?: number;
+              speciesCount?: number;
+              recommendationsCount?: number;
+            };
+            superfoods?: Array<{ name?: string }>;
+          };
+        };
+
+        if (cancelled) return;
+
+        setHeroData((current) => ({
+          overallScore: payload.data?.hero?.overallScore ?? current.overallScore,
+          speciesCount: payload.data?.hero?.speciesCount ?? current.speciesCount,
+          recommendationsCount:
+            payload.data?.hero?.recommendationsCount ?? current.recommendationsCount,
+          topSuperfood: payload.data?.superfoods?.[0]?.name ?? current.topSuperfood,
+        }));
+      } catch {
+        // Keep fallback values if backend is unavailable.
+      }
+    };
+
+    void loadHeroData();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const heroCards = [
+    {
+      ...floatingCardTemplates[0],
+      value: `${heroData.overallScore}/100`,
+      change: `+${heroData.recommendationsCount}`,
+    },
+    {
+      ...floatingCardTemplates[1],
+      value: heroData.topSuperfood,
+      subtitle: "Recommandé par l'IA",
+    },
+    {
+      ...floatingCardTemplates[2],
+      value: heroData.speciesCount.toLocaleString("fr-FR"),
+      subtitle: "espèces analysées",
+    },
+  ];
+
   const scrollToSection = (id: string) => {
     const element = document.querySelector(id);
     if (element) {
@@ -396,7 +454,7 @@ export default function HeroSection() {
               </motion.div>
 
               {/* Floating Glass Cards */}
-              {floatingCards.map((card, index) => (
+              {heroCards.map((card, index) => (
                 <motion.div
                   key={index}
                   className={`absolute ${card.position}`}
