@@ -30,10 +30,10 @@ const teamMembers = [
     social: { linkedin: "#", twitter: "#" },
   },
   {
-    name: "Yaye Maimouna Diop",
+    name: "Yaye Maimouna Sakho",
     role: "Chief Scientific Officer",
     image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop&crop=face",
-    bio: "Microbiologiste / MD PhD. Validation clinique et relations académiques.",
+    bio: "Microbiologiste . Validation clinique et relations académiques.",
     credentials: ["MD PhD", "Microbiologie", "Recherche"],
     social: { linkedin: "#", twitter: "#" },
   },
