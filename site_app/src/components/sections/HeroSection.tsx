@@ -62,6 +62,8 @@ const itemVariants = {
   },
 };
 
+const MICROBIOME_DEMO_VIDEO_URL = "https://www.youtube.com/embed/1sISguPDlhY?autoplay=1&rel=0";
+
 export default function HeroSection() {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [heroData, setHeroData] = useState({
@@ -505,7 +507,7 @@ export default function HeroSection() {
 
       {/* Video Modal */}
       <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
-        <DialogContent className="max-w-4xl w-full p-0 overflow-hidden rounded-2xl">
+        <DialogContent className="w-[95vw] max-w-7xl p-0 overflow-hidden rounded-2xl">
           <VisuallyHidden>
             <DialogTitle>BiomeX - Démonstration</DialogTitle>
           </VisuallyHidden>
@@ -513,8 +515,8 @@ export default function HeroSection() {
             {isVideoOpen && (
               <iframe
                 className="w-full h-full"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                title="BiomeX Demo"
+                src={MICROBIOME_DEMO_VIDEO_URL}
+                title="Microbiome: Meet your microbes"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />

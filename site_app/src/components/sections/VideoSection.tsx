@@ -13,6 +13,8 @@ const videoFeatures = [
   { icon: CheckCircle, text: "Résultats garantis" },
 ];
 
+const MICROBIOME_DEMO_VIDEO_URL = "https://www.youtube.com/embed/1sISguPDlhY?autoplay=1&rel=0";
+
 export default function VideoSection() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -116,7 +118,7 @@ export default function VideoSection() {
 
       {/* Video Modal */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-5xl w-full p-0 overflow-hidden rounded-2xl">
+        <DialogContent className="w-[95vw] max-w-7xl p-0 overflow-hidden rounded-2xl">
           <VisuallyHidden>
             <DialogTitle>BiomeX - Comment ça marche</DialogTitle>
           </VisuallyHidden>
@@ -124,8 +126,8 @@ export default function VideoSection() {
             {isOpen && (
               <iframe
                 className="w-full h-full"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                title="BiomeX - Comment ça marche"
+                src={MICROBIOME_DEMO_VIDEO_URL}
+                title="Microbiome: Meet your microbes"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
