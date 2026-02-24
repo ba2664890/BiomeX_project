@@ -79,6 +79,87 @@ const mobilePaymentMethods = new Set([
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^\+?[0-9]{8,15}$/;
 
+type PreKitQuestionnaireState = {
+  age: string;
+  sexe: string;
+  tailleCm: string;
+  poidsKg: string;
+  zone: string;
+  antibio3Mois: string;
+  ballonnements: string;
+  transit: string;
+  fatigue: string;
+  fibersG: string;
+  sugarG: string;
+  milletFreq: string;
+  niebeFreq: string;
+  fishPortions: string;
+  glycemie: string;
+  hba1c: string;
+  crp: string;
+  tensionSys: string;
+  cholesterol: string;
+  triglycerides: string;
+};
+
+const initialPreKitQuestionnaire: PreKitQuestionnaireState = {
+  age: "",
+  sexe: "",
+  tailleCm: "",
+  poidsKg: "",
+  zone: "",
+  antibio3Mois: "",
+  ballonnements: "",
+  transit: "",
+  fatigue: "",
+  fibersG: "",
+  sugarG: "",
+  milletFreq: "",
+  niebeFreq: "",
+  fishPortions: "",
+  glycemie: "",
+  hba1c: "",
+  crp: "",
+  tensionSys: "",
+  cholesterol: "",
+  triglycerides: "",
+};
+
+const requiredQuestionnaireFields: Array<keyof PreKitQuestionnaireState> = [
+  "age",
+  "sexe",
+  "tailleCm",
+  "poidsKg",
+  "zone",
+  "antibio3Mois",
+  "ballonnements",
+  "transit",
+  "fatigue",
+  "fibersG",
+  "sugarG",
+  "milletFreq",
+  "niebeFreq",
+  "fishPortions",
+];
+
+const selectBaseClassName =
+  "border-input focus-visible:border-ring focus-visible:ring-ring/50 flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:ring-[3px]";
+
+const questionnaireSectionCardClassName =
+  "space-y-4 rounded-xl border border-primary/10 bg-white/85 p-4 shadow-sm";
+
+const questionnaireStepTitleClassName =
+  "inline-flex items-center gap-2 text-sm font-semibold text-primary";
+
+const questionnaireSelectClassName = `${selectBaseClassName} bg-white`;
+
+const parseOptionalNumber = (value: string): number | null => {
+  const normalized = value.trim();
+  if (!normalized) return null;
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
 type OrderFormState = {
   fullName: string;
   email: string;
@@ -96,6 +177,7 @@ type OrderFormState = {
   paymentLast4: string;
   message: string;
   acceptedTerms: boolean;
+  questionnaire: PreKitQuestionnaireState;
 };
 
 const initialOrderForm: OrderFormState = {
@@ -115,6 +197,7 @@ const initialOrderForm: OrderFormState = {
   paymentLast4: "",
   message: "",
   acceptedTerms: false,
+  questionnaire: initialPreKitQuestionnaire,
 };
 
 const containerVariants = {
@@ -148,6 +231,165 @@ export default function PricingSection() {
     value: OrderFormState[K],
   ) => {
     setOrderForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const setQuestionnaireField = <K extends keyof PreKitQuestionnaireState>(
+    key: K,
+    value: PreKitQuestionnaireState[K],
+  ) => {
+    setOrderForm((prev) => ({
+      ...prev,
+      questionnaire: { ...prev.questionnaire, [key]: value },
+    }));
+  };
+
+  const filledRequiredFieldCount = useMemo(() => {
+    return requiredQuestionnaireFields.filter(
+      (field) => orderForm.questionnaire[field].trim().length > 0,
+    ).length;
+  }, [orderForm.questionnaire]);
+
+  const questionnaireCompletion = useMemo(() => {
+    return Math.round(
+      (filledRequiredFieldCount / requiredQuestionnaireFields.length) * 100,
+    );
+  }, [filledRequiredFieldCount]);
+
+  const missingRequiredFieldCount =
+    requiredQuestionnaireFields.length - filledRequiredFieldCount;
+
+  const bodyMassIndex = useMemo(() => {
+    const tailleCm = parseOptionalNumber(orderForm.questionnaire.tailleCm);
+    const poidsKg = parseOptionalNumber(orderForm.questionnaire.poidsKg);
+    if (tailleCm === null || poidsKg === null || tailleCm <= 0 || poidsKg <= 0) {
+      return null;
+    }
+    const imc = poidsKg / (tailleCm / 100) ** 2;
+    return Number(imc.toFixed(1));
+  }, [orderForm.questionnaire.poidsKg, orderForm.questionnaire.tailleCm]);
+
+  const validatePreKitQuestionnaire = () => {
+    const q = orderForm.questionnaire;
+
+    for (const field of requiredQuestionnaireFields) {
+      if (!q[field].trim()) {
+        return "Merci de completer le questionnaire pre-kit avant de valider.";
+      }
+    }
+
+    const age = parseOptionalNumber(q.age);
+    if (age === null || age < 18 || age > 90) {
+      return "Age invalide (18 a 90 ans).";
+    }
+
+    if (!["0", "1"].includes(q.sexe)) {
+      return "Veuillez renseigner le sexe biologique (Femme ou Homme).";
+    }
+
+    const tailleCm = parseOptionalNumber(q.tailleCm);
+    if (tailleCm === null || tailleCm < 120 || tailleCm > 230) {
+      return "Taille invalide (120 a 230 cm).";
+    }
+
+    const poidsKg = parseOptionalNumber(q.poidsKg);
+    if (poidsKg === null || poidsKg < 30 || poidsKg > 250) {
+      return "Poids invalide (30 a 250 kg).";
+    }
+
+    if (!["Urbain", "Banlieue", "Rural"].includes(q.zone)) {
+      return "Veuillez selectionner la zone de residence.";
+    }
+
+    if (!["0", "1"].includes(q.antibio3Mois)) {
+      return "Veuillez indiquer si vous avez pris des antibiotiques dans les 3 derniers mois.";
+    }
+
+    if (!["0", "1", "2", "3"].includes(q.ballonnements)) {
+      return "Niveau de ballonnements invalide.";
+    }
+
+    if (!["0", "1", "2", "3"].includes(q.transit)) {
+      return "Type de transit invalide.";
+    }
+
+    if (!["0", "1", "2", "3"].includes(q.fatigue)) {
+      return "Niveau de fatigue invalide.";
+    }
+
+    const fibersG = parseOptionalNumber(q.fibersG);
+    if (fibersG === null || fibersG < 0 || fibersG > 90) {
+      return "Apport en fibres invalide (0 a 90 g/jour).";
+    }
+
+    const sugarG = parseOptionalNumber(q.sugarG);
+    if (sugarG === null || sugarG < 0 || sugarG > 300) {
+      return "Apport en sucres ajoutes invalide (0 a 300 g/jour).";
+    }
+
+    const milletFreq = parseOptionalNumber(q.milletFreq);
+    if (milletFreq === null || milletFreq < 0 || milletFreq > 14) {
+      return "Frequence mil/sorgho invalide (0 a 14 fois/semaine).";
+    }
+
+    const niebeFreq = parseOptionalNumber(q.niebeFreq);
+    if (niebeFreq === null || niebeFreq < 0 || niebeFreq > 14) {
+      return "Frequence niebe invalide (0 a 14 fois/semaine).";
+    }
+
+    const fishPortions = parseOptionalNumber(q.fishPortions);
+    if (fishPortions === null || fishPortions < 0 || fishPortions > 14) {
+      return "Frequence poisson invalide (0 a 14 portions/semaine).";
+    }
+
+    const optionalRanges: Array<{ value: string; min: number; max: number; label: string }> = [
+      { value: q.glycemie, min: 2, max: 20, label: "glycemie" },
+      { value: q.hba1c, min: 3, max: 15, label: "HbA1c" },
+      { value: q.crp, min: 0, max: 100, label: "CRP" },
+      { value: q.tensionSys, min: 70, max: 230, label: "tension systolique" },
+      { value: q.cholesterol, min: 1, max: 15, label: "cholesterol" },
+      { value: q.triglycerides, min: 0, max: 20, label: "triglycerides" },
+    ];
+
+    for (const item of optionalRanges) {
+      const parsed = parseOptionalNumber(item.value);
+      if (parsed !== null && (parsed < item.min || parsed > item.max)) {
+        return `Valeur ${item.label} hors plage attendue (${item.min}-${item.max}).`;
+      }
+    }
+
+    return null;
+  };
+
+  const buildQuestionnairePayload = () => {
+    const q = orderForm.questionnaire;
+    return {
+      version: "v1_biomex_full_pipeline_2026_02",
+      notebook_reference: "Scripts_model/BiomeX_Full_Pipeline.ipynb",
+      completion_percent: questionnaireCompletion,
+      answers: {
+        age: parseOptionalNumber(q.age),
+        sexe: parseOptionalNumber(q.sexe),
+        taille_cm: parseOptionalNumber(q.tailleCm),
+        poids_kg: parseOptionalNumber(q.poidsKg),
+        IMC: bodyMassIndex,
+        zone: q.zone,
+        antibio_3mois: parseOptionalNumber(q.antibio3Mois),
+        ballonnements: parseOptionalNumber(q.ballonnements),
+        transit: parseOptionalNumber(q.transit),
+        fatigue: parseOptionalNumber(q.fatigue),
+        fibers_g: parseOptionalNumber(q.fibersG),
+        sugar_g: parseOptionalNumber(q.sugarG),
+        millet_freq: parseOptionalNumber(q.milletFreq),
+        niebe_freq: parseOptionalNumber(q.niebeFreq),
+        fish_portions: parseOptionalNumber(q.fishPortions),
+        glycemie: parseOptionalNumber(q.glycemie),
+        HbA1c: parseOptionalNumber(q.hba1c),
+        CRP: parseOptionalNumber(q.crp),
+        tension_sys: parseOptionalNumber(q.tensionSys),
+        cholesterol: parseOptionalNumber(q.cholesterol),
+        triglycerides: parseOptionalNumber(q.triglycerides),
+      },
+    };
   };
 
   const openOrderDialog = (plan: PricingPlan) => {
@@ -262,6 +504,11 @@ export default function PricingSection() {
       return "La quantite doit etre entre 1 et 20.";
     }
 
+    const questionnaireError = validatePreKitQuestionnaire();
+    if (questionnaireError) {
+      return questionnaireError;
+    }
+
     if (!orderForm.paymentMethod) {
       return "Veuillez choisir un moyen de paiement.";
     }
@@ -317,6 +564,7 @@ export default function PricingSection() {
 
     try {
       setIsSubmittingOrder(true);
+      const questionnairePayload = buildQuestionnairePayload();
 
       const response = await fetch("/api/site/kit-order", {
         method: "POST",
@@ -348,6 +596,7 @@ export default function PricingSection() {
             channel: "pricing_section",
             campaign: "direct_checkout",
             location_capture: "browser_gps",
+            pre_kit_questionnaire: questionnairePayload,
           },
         }),
       });
@@ -595,6 +844,406 @@ export default function PricingSection() {
               />
             </div>
 
+            <div className="space-y-5 rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/5 via-white to-accent/10 p-5 md:col-span-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    Questionnaire pre-kit
+                  </div>
+                  <p className="text-sm font-semibold text-primary">
+                    Questionnaire clinique et nutritionnel (obligatoire)
+                  </p>
+                  <p className="text-xs text-slate-600">
+                    Remplissez ces informations avant validation du kit. Donnees alignees sur
+                    BiomeX_Full_Pipeline.ipynb.
+                  </p>
+                </div>
+                <div
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
+                    questionnaireCompletion === 100
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  <Check className="h-3.5 w-3.5" />
+                  {questionnaireCompletion}% complete
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-slate-600">
+                  <span>Progression</span>
+                  <span>
+                    {filledRequiredFieldCount}/{requiredQuestionnaireFields.length} champs
+                    obligatoires
+                  </span>
+                </div>
+                <div className="h-2.5 w-full overflow-hidden rounded-full bg-white shadow-inner">
+                  <div
+                    className={`h-full rounded-full transition-all ${
+                      questionnaireCompletion === 100 ? "bg-emerald-500" : "bg-accent"
+                    }`}
+                    style={{ width: `${questionnaireCompletion}%` }}
+                  />
+                </div>
+                {missingRequiredFieldCount > 0 && (
+                  <p className="text-xs font-medium text-amber-700">
+                    Il reste {missingRequiredFieldCount} champ(s) obligatoire(s) a completer.
+                  </p>
+                )}
+              </div>
+
+              <div className={questionnaireSectionCardClassName}>
+                <p className={questionnaireStepTitleClassName}>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs">
+                    1
+                  </span>
+                  Profil de base
+                </p>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="q_age">Age (ans)</Label>
+                    <Input
+                      id="q_age"
+                      className="bg-white"
+                      type="number"
+                      min={18}
+                      max={90}
+                      value={orderForm.questionnaire.age}
+                      onChange={(event) => setQuestionnaireField("age", event.target.value)}
+                      placeholder="Ex: 34"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_sexe">Sexe biologique</Label>
+                    <select
+                      id="q_sexe"
+                      className={questionnaireSelectClassName}
+                      value={orderForm.questionnaire.sexe}
+                      onChange={(event) => setQuestionnaireField("sexe", event.target.value)}
+                    >
+                      <option value="">Selectionner</option>
+                      <option value="0">Femme</option>
+                      <option value="1">Homme</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_taille">Taille (cm)</Label>
+                    <Input
+                      id="q_taille"
+                      className="bg-white"
+                      type="number"
+                      min={120}
+                      max={230}
+                      value={orderForm.questionnaire.tailleCm}
+                      onChange={(event) => setQuestionnaireField("tailleCm", event.target.value)}
+                      placeholder="Ex: 172"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_poids">Poids (kg)</Label>
+                    <Input
+                      id="q_poids"
+                      className="bg-white"
+                      type="number"
+                      min={30}
+                      max={250}
+                      value={orderForm.questionnaire.poidsKg}
+                      onChange={(event) => setQuestionnaireField("poidsKg", event.target.value)}
+                      placeholder="Ex: 72"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_zone">Zone de residence</Label>
+                    <select
+                      id="q_zone"
+                      className={questionnaireSelectClassName}
+                      value={orderForm.questionnaire.zone}
+                      onChange={(event) => setQuestionnaireField("zone", event.target.value)}
+                    >
+                      <option value="">Selectionner</option>
+                      <option value="Urbain">Urbain</option>
+                      <option value="Banlieue">Banlieue</option>
+                      <option value="Rural">Rural</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_antibio">Antibiotiques (&lt; 3 mois)</Label>
+                    <select
+                      id="q_antibio"
+                      className={questionnaireSelectClassName}
+                      value={orderForm.questionnaire.antibio3Mois}
+                      onChange={(event) =>
+                        setQuestionnaireField("antibio3Mois", event.target.value)
+                      }
+                    >
+                      <option value="">Selectionner</option>
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-primary/10 bg-primary/5 p-3 text-xs text-slate-700">
+                  <p className="font-medium text-primary">IMC calcule automatiquement</p>
+                  <p className="mt-1">
+                    Valeur actuelle:{" "}
+                    <strong>{bodyMassIndex !== null ? `${bodyMassIndex}` : "non disponible"}</strong>
+                  </p>
+                </div>
+              </div>
+
+              <div className={questionnaireSectionCardClassName}>
+                <p className={questionnaireStepTitleClassName}>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs">
+                    2
+                  </span>
+                  Symptomes digestifs
+                </p>
+                <p className="-mt-2 text-xs text-slate-600">Echelle 0 (aucun) a 3 (severe).</p>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="q_ballonnements">Ballonnements</Label>
+                    <select
+                      id="q_ballonnements"
+                      className={questionnaireSelectClassName}
+                      value={orderForm.questionnaire.ballonnements}
+                      onChange={(event) =>
+                        setQuestionnaireField("ballonnements", event.target.value)
+                      }
+                    >
+                      <option value="">Selectionner</option>
+                      <option value="0">0 - Aucun</option>
+                      <option value="1">1 - Leger</option>
+                      <option value="2">2 - Modere</option>
+                      <option value="3">3 - Severe</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_transit">Transit</Label>
+                    <select
+                      id="q_transit"
+                      className={questionnaireSelectClassName}
+                      value={orderForm.questionnaire.transit}
+                      onChange={(event) => setQuestionnaireField("transit", event.target.value)}
+                    >
+                      <option value="">Selectionner</option>
+                      <option value="0">0 - Normal</option>
+                      <option value="1">1 - Constipation</option>
+                      <option value="2">2 - Diarrhee</option>
+                      <option value="3">3 - Alternance</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_fatigue">Fatigue</Label>
+                    <select
+                      id="q_fatigue"
+                      className={questionnaireSelectClassName}
+                      value={orderForm.questionnaire.fatigue}
+                      onChange={(event) => setQuestionnaireField("fatigue", event.target.value)}
+                    >
+                      <option value="">Selectionner</option>
+                      <option value="0">0 - Aucune</option>
+                      <option value="1">1 - Legere</option>
+                      <option value="2">2 - Moderee</option>
+                      <option value="3">3 - Severe</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className={questionnaireSectionCardClassName}>
+                <p className={questionnaireStepTitleClassName}>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs">
+                    3
+                  </span>
+                  Habitudes alimentaires
+                </p>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="q_fibers">Fibres estimees (g/jour)</Label>
+                    <Input
+                      id="q_fibers"
+                      className="bg-white"
+                      type="number"
+                      min={0}
+                      max={90}
+                      value={orderForm.questionnaire.fibersG}
+                      onChange={(event) => setQuestionnaireField("fibersG", event.target.value)}
+                      placeholder="Ex: 22"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_sugar">Sucres ajoutes (g/jour)</Label>
+                    <Input
+                      id="q_sugar"
+                      className="bg-white"
+                      type="number"
+                      min={0}
+                      max={300}
+                      value={orderForm.questionnaire.sugarG}
+                      onChange={(event) => setQuestionnaireField("sugarG", event.target.value)}
+                      placeholder="Ex: 60"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_millet">Mil/Sorgho (fois/semaine)</Label>
+                    <Input
+                      id="q_millet"
+                      className="bg-white"
+                      type="number"
+                      min={0}
+                      max={14}
+                      value={orderForm.questionnaire.milletFreq}
+                      onChange={(event) => setQuestionnaireField("milletFreq", event.target.value)}
+                      placeholder="Ex: 3"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_niebe">Niebe (fois/semaine)</Label>
+                    <Input
+                      id="q_niebe"
+                      className="bg-white"
+                      type="number"
+                      min={0}
+                      max={14}
+                      value={orderForm.questionnaire.niebeFreq}
+                      onChange={(event) => setQuestionnaireField("niebeFreq", event.target.value)}
+                      placeholder="Ex: 2"
+                    />
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="q_fish">Poisson (portions/semaine)</Label>
+                    <Input
+                      id="q_fish"
+                      className="bg-white"
+                      type="number"
+                      min={0}
+                      max={14}
+                      value={orderForm.questionnaire.fishPortions}
+                      onChange={(event) => setQuestionnaireField("fishPortions", event.target.value)}
+                      placeholder="Ex: 3"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className={questionnaireSectionCardClassName}>
+                <p className={questionnaireStepTitleClassName}>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs">
+                    4
+                  </span>
+                  Biomarqueurs recents
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                    Optionnel
+                  </span>
+                </p>
+                <p className="-mt-2 text-xs text-slate-600">
+                  Ajoutez uniquement des resultats biologiques recents si disponibles.
+                </p>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="q_glycemie">Glycemie (mmol/L)</Label>
+                    <Input
+                      id="q_glycemie"
+                      className="bg-white"
+                      type="number"
+                      min={2}
+                      max={20}
+                      value={orderForm.questionnaire.glycemie}
+                      onChange={(event) => setQuestionnaireField("glycemie", event.target.value)}
+                      placeholder="Optionnel"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_hba1c">HbA1c (%)</Label>
+                    <Input
+                      id="q_hba1c"
+                      className="bg-white"
+                      type="number"
+                      min={3}
+                      max={15}
+                      value={orderForm.questionnaire.hba1c}
+                      onChange={(event) => setQuestionnaireField("hba1c", event.target.value)}
+                      placeholder="Optionnel"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_crp">CRP (mg/L)</Label>
+                    <Input
+                      id="q_crp"
+                      className="bg-white"
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={orderForm.questionnaire.crp}
+                      onChange={(event) => setQuestionnaireField("crp", event.target.value)}
+                      placeholder="Optionnel"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_tension">Tension systolique (mmHg)</Label>
+                    <Input
+                      id="q_tension"
+                      className="bg-white"
+                      type="number"
+                      min={70}
+                      max={230}
+                      value={orderForm.questionnaire.tensionSys}
+                      onChange={(event) => setQuestionnaireField("tensionSys", event.target.value)}
+                      placeholder="Optionnel"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_cholesterol">Cholesterol (mmol/L)</Label>
+                    <Input
+                      id="q_cholesterol"
+                      className="bg-white"
+                      type="number"
+                      min={1}
+                      max={15}
+                      value={orderForm.questionnaire.cholesterol}
+                      onChange={(event) =>
+                        setQuestionnaireField("cholesterol", event.target.value)
+                      }
+                      placeholder="Optionnel"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_triglycerides">Triglycerides (mmol/L)</Label>
+                    <Input
+                      id="q_triglycerides"
+                      className="bg-white"
+                      type="number"
+                      min={0}
+                      max={20}
+                      value={orderForm.questionnaire.triglycerides}
+                      onChange={(event) =>
+                        setQuestionnaireField("triglycerides", event.target.value)
+                      }
+                      placeholder="Optionnel"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-3 rounded-lg border border-primary/10 bg-primary/5 p-4 md:col-span-2">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -640,7 +1289,7 @@ export default function PricingSection() {
               <Label htmlFor="paymentMethod">Moyen de paiement</Label>
               <select
                 id="paymentMethod"
-                className="border-input focus-visible:border-ring focus-visible:ring-ring/50 flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
+                className={selectBaseClassName}
                 value={orderForm.paymentMethod}
                 onChange={(event) => setOrderField("paymentMethod", event.target.value)}
               >
