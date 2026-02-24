@@ -84,22 +84,22 @@ type PreKitQuestionnaireState = {
   sexe: string;
   tailleCm: string;
   poidsKg: string;
-  zone: string;
-  antibio3Mois: string;
-  ballonnements: string;
-  transit: string;
-  fatigue: string;
-  fibersG: string;
-  sugarG: string;
-  milletFreq: string;
-  niebeFreq: string;
-  fishPortions: string;
-  glycemie: string;
-  hba1c: string;
-  crp: string;
-  tensionSys: string;
-  cholesterol: string;
-  triglycerides: string;
+  zoneHabitation: string;
+  antibiotiquesRecents: string;
+  niveauBallonnements: string;
+  typeTransit: string;
+  niveauFatigue: string;
+  fibresParJour: string;
+  sucresAjoutesParJour: string;
+  milSorghoParSemaine: string;
+  niebeParSemaine: string;
+  portionsPoissonParSemaine: string;
+  glycemieRecente: string;
+  hemoglobineGlyquee: string;
+  marqueurCRP: string;
+  tensionSystoliqueRecente: string;
+  cholesterolTotal: string;
+  triglyceridesRecents: string;
 };
 
 const initialPreKitQuestionnaire: PreKitQuestionnaireState = {
@@ -107,22 +107,22 @@ const initialPreKitQuestionnaire: PreKitQuestionnaireState = {
   sexe: "",
   tailleCm: "",
   poidsKg: "",
-  zone: "",
-  antibio3Mois: "",
-  ballonnements: "",
-  transit: "",
-  fatigue: "",
-  fibersG: "",
-  sugarG: "",
-  milletFreq: "",
-  niebeFreq: "",
-  fishPortions: "",
-  glycemie: "",
-  hba1c: "",
-  crp: "",
-  tensionSys: "",
-  cholesterol: "",
-  triglycerides: "",
+  zoneHabitation: "",
+  antibiotiquesRecents: "",
+  niveauBallonnements: "",
+  typeTransit: "",
+  niveauFatigue: "",
+  fibresParJour: "",
+  sucresAjoutesParJour: "",
+  milSorghoParSemaine: "",
+  niebeParSemaine: "",
+  portionsPoissonParSemaine: "",
+  glycemieRecente: "",
+  hemoglobineGlyquee: "",
+  marqueurCRP: "",
+  tensionSystoliqueRecente: "",
+  cholesterolTotal: "",
+  triglyceridesRecents: "",
 };
 
 const requiredQuestionnaireFields: Array<keyof PreKitQuestionnaireState> = [
@@ -130,16 +130,16 @@ const requiredQuestionnaireFields: Array<keyof PreKitQuestionnaireState> = [
   "sexe",
   "tailleCm",
   "poidsKg",
-  "zone",
-  "antibio3Mois",
-  "ballonnements",
-  "transit",
-  "fatigue",
-  "fibersG",
-  "sugarG",
-  "milletFreq",
-  "niebeFreq",
-  "fishPortions",
+  "zoneHabitation",
+  "antibiotiquesRecents",
+  "niveauBallonnements",
+  "typeTransit",
+  "niveauFatigue",
+  "fibresParJour",
+  "sucresAjoutesParJour",
+  "milSorghoParSemaine",
+  "niebeParSemaine",
+  "portionsPoissonParSemaine",
 ];
 
 const selectBaseClassName =
@@ -296,58 +296,62 @@ export default function PricingSection() {
       return "Poids invalide (30 a 250 kg).";
     }
 
-    if (!["Urbain", "Banlieue", "Rural"].includes(q.zone)) {
+    if (!["Urbain", "Banlieue", "Rural"].includes(q.zoneHabitation)) {
       return "Veuillez selectionner la zone de residence.";
     }
 
-    if (!["0", "1"].includes(q.antibio3Mois)) {
+    if (!["0", "1"].includes(q.antibiotiquesRecents)) {
       return "Veuillez indiquer si vous avez pris des antibiotiques dans les 3 derniers mois.";
     }
 
-    if (!["0", "1", "2", "3"].includes(q.ballonnements)) {
+    if (!["0", "1", "2", "3"].includes(q.niveauBallonnements)) {
       return "Niveau de ballonnements invalide.";
     }
 
-    if (!["0", "1", "2", "3"].includes(q.transit)) {
+    if (!["0", "1", "2", "3"].includes(q.typeTransit)) {
       return "Type de transit invalide.";
     }
 
-    if (!["0", "1", "2", "3"].includes(q.fatigue)) {
+    if (!["0", "1", "2", "3"].includes(q.niveauFatigue)) {
       return "Niveau de fatigue invalide.";
     }
 
-    const fibersG = parseOptionalNumber(q.fibersG);
-    if (fibersG === null || fibersG < 0 || fibersG > 90) {
+    const fibresParJour = parseOptionalNumber(q.fibresParJour);
+    if (fibresParJour === null || fibresParJour < 0 || fibresParJour > 90) {
       return "Apport en fibres invalide (0 a 90 g/jour).";
     }
 
-    const sugarG = parseOptionalNumber(q.sugarG);
-    if (sugarG === null || sugarG < 0 || sugarG > 300) {
+    const sucresAjoutesParJour = parseOptionalNumber(q.sucresAjoutesParJour);
+    if (sucresAjoutesParJour === null || sucresAjoutesParJour < 0 || sucresAjoutesParJour > 300) {
       return "Apport en sucres ajoutes invalide (0 a 300 g/jour).";
     }
 
-    const milletFreq = parseOptionalNumber(q.milletFreq);
-    if (milletFreq === null || milletFreq < 0 || milletFreq > 14) {
+    const milSorghoParSemaine = parseOptionalNumber(q.milSorghoParSemaine);
+    if (milSorghoParSemaine === null || milSorghoParSemaine < 0 || milSorghoParSemaine > 14) {
       return "Frequence mil/sorgho invalide (0 a 14 fois/semaine).";
     }
 
-    const niebeFreq = parseOptionalNumber(q.niebeFreq);
-    if (niebeFreq === null || niebeFreq < 0 || niebeFreq > 14) {
+    const niebeParSemaine = parseOptionalNumber(q.niebeParSemaine);
+    if (niebeParSemaine === null || niebeParSemaine < 0 || niebeParSemaine > 14) {
       return "Frequence niebe invalide (0 a 14 fois/semaine).";
     }
 
-    const fishPortions = parseOptionalNumber(q.fishPortions);
-    if (fishPortions === null || fishPortions < 0 || fishPortions > 14) {
+    const portionsPoissonParSemaine = parseOptionalNumber(q.portionsPoissonParSemaine);
+    if (
+      portionsPoissonParSemaine === null ||
+      portionsPoissonParSemaine < 0 ||
+      portionsPoissonParSemaine > 14
+    ) {
       return "Frequence poisson invalide (0 a 14 portions/semaine).";
     }
 
     const optionalRanges: Array<{ value: string; min: number; max: number; label: string }> = [
-      { value: q.glycemie, min: 2, max: 20, label: "glycemie" },
-      { value: q.hba1c, min: 3, max: 15, label: "HbA1c" },
-      { value: q.crp, min: 0, max: 100, label: "CRP" },
-      { value: q.tensionSys, min: 70, max: 230, label: "tension systolique" },
-      { value: q.cholesterol, min: 1, max: 15, label: "cholesterol" },
-      { value: q.triglycerides, min: 0, max: 20, label: "triglycerides" },
+      { value: q.glycemieRecente, min: 2, max: 20, label: "glycemie recente" },
+      { value: q.hemoglobineGlyquee, min: 3, max: 15, label: "sucre moyen sur 3 mois (HbA1c)" },
+      { value: q.marqueurCRP, min: 0, max: 100, label: "marqueur d'inflammation (CRP)" },
+      { value: q.tensionSystoliqueRecente, min: 70, max: 230, label: "pression arterielle maximale" },
+      { value: q.cholesterolTotal, min: 1, max: 15, label: "cholesterol total" },
+      { value: q.triglyceridesRecents, min: 0, max: 20, label: "triglycerides" },
     ];
 
     for (const item of optionalRanges) {
@@ -368,26 +372,26 @@ export default function PricingSection() {
       completion_percent: questionnaireCompletion,
       answers: {
         age: parseOptionalNumber(q.age),
-        sexe: parseOptionalNumber(q.sexe),
+        sexe_biologique: parseOptionalNumber(q.sexe),
         taille_cm: parseOptionalNumber(q.tailleCm),
         poids_kg: parseOptionalNumber(q.poidsKg),
-        IMC: bodyMassIndex,
-        zone: q.zone,
-        antibio_3mois: parseOptionalNumber(q.antibio3Mois),
-        ballonnements: parseOptionalNumber(q.ballonnements),
-        transit: parseOptionalNumber(q.transit),
-        fatigue: parseOptionalNumber(q.fatigue),
-        fibers_g: parseOptionalNumber(q.fibersG),
-        sugar_g: parseOptionalNumber(q.sugarG),
-        millet_freq: parseOptionalNumber(q.milletFreq),
-        niebe_freq: parseOptionalNumber(q.niebeFreq),
-        fish_portions: parseOptionalNumber(q.fishPortions),
-        glycemie: parseOptionalNumber(q.glycemie),
-        HbA1c: parseOptionalNumber(q.hba1c),
-        CRP: parseOptionalNumber(q.crp),
-        tension_sys: parseOptionalNumber(q.tensionSys),
-        cholesterol: parseOptionalNumber(q.cholesterol),
-        triglycerides: parseOptionalNumber(q.triglycerides),
+        imc_calcule: bodyMassIndex,
+        zone_habitation: q.zoneHabitation,
+        antibiotiques_3_derniers_mois: parseOptionalNumber(q.antibiotiquesRecents),
+        niveau_ballonnements: parseOptionalNumber(q.niveauBallonnements),
+        type_transit: parseOptionalNumber(q.typeTransit),
+        niveau_fatigue: parseOptionalNumber(q.niveauFatigue),
+        fibres_par_jour_g: parseOptionalNumber(q.fibresParJour),
+        sucres_ajoutes_par_jour_g: parseOptionalNumber(q.sucresAjoutesParJour),
+        mil_sorgho_par_semaine: parseOptionalNumber(q.milSorghoParSemaine),
+        niebe_par_semaine: parseOptionalNumber(q.niebeParSemaine),
+        portions_poisson_par_semaine: parseOptionalNumber(q.portionsPoissonParSemaine),
+        glycemie_recente_mmol_l: parseOptionalNumber(q.glycemieRecente),
+        sucre_moyen_3_mois_hba1c_pct: parseOptionalNumber(q.hemoglobineGlyquee),
+        marqueur_inflammation_crp_mg_l: parseOptionalNumber(q.marqueurCRP),
+        pression_arterielle_max_mmhg: parseOptionalNumber(q.tensionSystoliqueRecente),
+        cholesterol_total_mmol_l: parseOptionalNumber(q.cholesterolTotal),
+        triglycerides_mmol_l: parseOptionalNumber(q.triglyceridesRecents),
       },
     };
   };
@@ -851,11 +855,7 @@ export default function PricingSection() {
                     Questionnaire pre-kit
                   </div>
                   <p className="text-sm font-semibold text-primary">
-                    Questionnaire clinique et nutritionnel (obligatoire)
-                  </p>
-                  <p className="text-xs text-slate-600">
-                    Remplissez ces informations avant validation du kit. Donnees alignees sur
-                    BiomeX_Full_Pipeline.ipynb.
+                    Questionnaire sante et alimentation (obligatoire)
                   </p>
                 </div>
                 <div
@@ -962,8 +962,10 @@ export default function PricingSection() {
                     <select
                       id="q_zone"
                       className={questionnaireSelectClassName}
-                      value={orderForm.questionnaire.zone}
-                      onChange={(event) => setQuestionnaireField("zone", event.target.value)}
+                      value={orderForm.questionnaire.zoneHabitation}
+                      onChange={(event) =>
+                        setQuestionnaireField("zoneHabitation", event.target.value)
+                      }
                     >
                       <option value="">Selectionner</option>
                       <option value="Urbain">Urbain</option>
@@ -977,9 +979,9 @@ export default function PricingSection() {
                     <select
                       id="q_antibio"
                       className={questionnaireSelectClassName}
-                      value={orderForm.questionnaire.antibio3Mois}
+                      value={orderForm.questionnaire.antibiotiquesRecents}
                       onChange={(event) =>
-                        setQuestionnaireField("antibio3Mois", event.target.value)
+                        setQuestionnaireField("antibiotiquesRecents", event.target.value)
                       }
                     >
                       <option value="">Selectionner</option>
@@ -990,7 +992,9 @@ export default function PricingSection() {
                 </div>
 
                 <div className="rounded-lg border border-primary/10 bg-primary/5 p-3 text-xs text-slate-700">
-                  <p className="font-medium text-primary">IMC calcule automatiquement</p>
+                  <p className="font-medium text-primary">
+                    Indice de masse corporelle (IMC) calcule automatiquement
+                  </p>
                   <p className="mt-1">
                     Valeur actuelle:{" "}
                     <strong>{bodyMassIndex !== null ? `${bodyMassIndex}` : "non disponible"}</strong>
@@ -1008,13 +1012,13 @@ export default function PricingSection() {
                 <p className="-mt-2 text-xs text-slate-600">Echelle 0 (aucun) a 3 (severe).</p>
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="space-y-2">
-                    <Label htmlFor="q_ballonnements">Ballonnements</Label>
+                    <Label htmlFor="q_ballonnements">Ballonnements (gene abdominale)</Label>
                     <select
                       id="q_ballonnements"
                       className={questionnaireSelectClassName}
-                      value={orderForm.questionnaire.ballonnements}
+                      value={orderForm.questionnaire.niveauBallonnements}
                       onChange={(event) =>
-                        setQuestionnaireField("ballonnements", event.target.value)
+                        setQuestionnaireField("niveauBallonnements", event.target.value)
                       }
                     >
                       <option value="">Selectionner</option>
@@ -1026,12 +1030,14 @@ export default function PricingSection() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="q_transit">Transit</Label>
+                    <Label htmlFor="q_transit">Transit intestinal</Label>
                     <select
                       id="q_transit"
                       className={questionnaireSelectClassName}
-                      value={orderForm.questionnaire.transit}
-                      onChange={(event) => setQuestionnaireField("transit", event.target.value)}
+                      value={orderForm.questionnaire.typeTransit}
+                      onChange={(event) =>
+                        setQuestionnaireField("typeTransit", event.target.value)
+                      }
                     >
                       <option value="">Selectionner</option>
                       <option value="0">0 - Normal</option>
@@ -1042,12 +1048,14 @@ export default function PricingSection() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="q_fatigue">Fatigue</Label>
+                    <Label htmlFor="q_fatigue">Niveau de fatigue</Label>
                     <select
                       id="q_fatigue"
                       className={questionnaireSelectClassName}
-                      value={orderForm.questionnaire.fatigue}
-                      onChange={(event) => setQuestionnaireField("fatigue", event.target.value)}
+                      value={orderForm.questionnaire.niveauFatigue}
+                      onChange={(event) =>
+                        setQuestionnaireField("niveauFatigue", event.target.value)
+                      }
                     >
                       <option value="">Selectionner</option>
                       <option value="0">0 - Aucune</option>
@@ -1068,29 +1076,33 @@ export default function PricingSection() {
                 </p>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="q_fibers">Fibres estimees (g/jour)</Label>
+                    <Label htmlFor="q_fibers">Fibres alimentaires par jour (g)</Label>
                     <Input
                       id="q_fibers"
                       className="bg-white"
                       type="number"
                       min={0}
                       max={90}
-                      value={orderForm.questionnaire.fibersG}
-                      onChange={(event) => setQuestionnaireField("fibersG", event.target.value)}
+                      value={orderForm.questionnaire.fibresParJour}
+                      onChange={(event) =>
+                        setQuestionnaireField("fibresParJour", event.target.value)
+                      }
                       placeholder="Ex: 22"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="q_sugar">Sucres ajoutes (g/jour)</Label>
+                    <Label htmlFor="q_sugar">Sucres ajoutes par jour (g)</Label>
                     <Input
                       id="q_sugar"
                       className="bg-white"
                       type="number"
                       min={0}
                       max={300}
-                      value={orderForm.questionnaire.sugarG}
-                      onChange={(event) => setQuestionnaireField("sugarG", event.target.value)}
+                      value={orderForm.questionnaire.sucresAjoutesParJour}
+                      onChange={(event) =>
+                        setQuestionnaireField("sucresAjoutesParJour", event.target.value)
+                      }
                       placeholder="Ex: 60"
                     />
                   </div>
@@ -1103,8 +1115,10 @@ export default function PricingSection() {
                       type="number"
                       min={0}
                       max={14}
-                      value={orderForm.questionnaire.milletFreq}
-                      onChange={(event) => setQuestionnaireField("milletFreq", event.target.value)}
+                      value={orderForm.questionnaire.milSorghoParSemaine}
+                      onChange={(event) =>
+                        setQuestionnaireField("milSorghoParSemaine", event.target.value)
+                      }
                       placeholder="Ex: 3"
                     />
                   </div>
@@ -1117,22 +1131,26 @@ export default function PricingSection() {
                       type="number"
                       min={0}
                       max={14}
-                      value={orderForm.questionnaire.niebeFreq}
-                      onChange={(event) => setQuestionnaireField("niebeFreq", event.target.value)}
+                      value={orderForm.questionnaire.niebeParSemaine}
+                      onChange={(event) =>
+                        setQuestionnaireField("niebeParSemaine", event.target.value)
+                      }
                       placeholder="Ex: 2"
                     />
                   </div>
 
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="q_fish">Poisson (portions/semaine)</Label>
+                    <Label htmlFor="q_fish">Poisson (portions par semaine)</Label>
                     <Input
                       id="q_fish"
                       className="bg-white"
                       type="number"
                       min={0}
                       max={14}
-                      value={orderForm.questionnaire.fishPortions}
-                      onChange={(event) => setQuestionnaireField("fishPortions", event.target.value)}
+                      value={orderForm.questionnaire.portionsPoissonParSemaine}
+                      onChange={(event) =>
+                        setQuestionnaireField("portionsPoissonParSemaine", event.target.value)
+                      }
                       placeholder="Ex: 3"
                     />
                   </div>
@@ -1144,98 +1162,106 @@ export default function PricingSection() {
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs">
                     4
                   </span>
-                  Biomarqueurs recents
+                  Resultats de sante recents
                   <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
                     Optionnel
                   </span>
                 </p>
                 <p className="-mt-2 text-xs text-slate-600">
-                  Ajoutez uniquement des resultats biologiques recents si disponibles.
+                  Ajoutez ces informations seulement si vous avez une prise de sang recente.
                 </p>
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="space-y-2">
-                    <Label htmlFor="q_glycemie">Glycemie (mmol/L)</Label>
+                    <Label htmlFor="q_glycemie">Sucre dans le sang (glycemie, mmol/L)</Label>
                     <Input
                       id="q_glycemie"
                       className="bg-white"
                       type="number"
                       min={2}
                       max={20}
-                      value={orderForm.questionnaire.glycemie}
-                      onChange={(event) => setQuestionnaireField("glycemie", event.target.value)}
-                      placeholder="Optionnel"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="q_hba1c">HbA1c (%)</Label>
-                    <Input
-                      id="q_hba1c"
-                      className="bg-white"
-                      type="number"
-                      min={3}
-                      max={15}
-                      value={orderForm.questionnaire.hba1c}
-                      onChange={(event) => setQuestionnaireField("hba1c", event.target.value)}
-                      placeholder="Optionnel"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="q_crp">CRP (mg/L)</Label>
-                    <Input
-                      id="q_crp"
-                      className="bg-white"
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={orderForm.questionnaire.crp}
-                      onChange={(event) => setQuestionnaireField("crp", event.target.value)}
-                      placeholder="Optionnel"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="q_tension">Tension systolique (mmHg)</Label>
-                    <Input
-                      id="q_tension"
-                      className="bg-white"
-                      type="number"
-                      min={70}
-                      max={230}
-                      value={orderForm.questionnaire.tensionSys}
-                      onChange={(event) => setQuestionnaireField("tensionSys", event.target.value)}
-                      placeholder="Optionnel"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="q_cholesterol">Cholesterol (mmol/L)</Label>
-                    <Input
-                      id="q_cholesterol"
-                      className="bg-white"
-                      type="number"
-                      min={1}
-                      max={15}
-                      value={orderForm.questionnaire.cholesterol}
+                      value={orderForm.questionnaire.glycemieRecente}
                       onChange={(event) =>
-                        setQuestionnaireField("cholesterol", event.target.value)
+                        setQuestionnaireField("glycemieRecente", event.target.value)
                       }
                       placeholder="Optionnel"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="q_triglycerides">Triglycerides (mmol/L)</Label>
+                    <Label htmlFor="q_hba1c">Sucre moyen sur 3 mois (HbA1c, %)</Label>
+                    <Input
+                      id="q_hba1c"
+                      className="bg-white"
+                      type="number"
+                      min={3}
+                      max={15}
+                      value={orderForm.questionnaire.hemoglobineGlyquee}
+                      onChange={(event) =>
+                        setQuestionnaireField("hemoglobineGlyquee", event.target.value)
+                      }
+                      placeholder="Optionnel"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_crp">Marqueur d&apos;inflammation (CRP, mg/L)</Label>
+                    <Input
+                      id="q_crp"
+                      className="bg-white"
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={orderForm.questionnaire.marqueurCRP}
+                      onChange={(event) =>
+                        setQuestionnaireField("marqueurCRP", event.target.value)
+                      }
+                      placeholder="Optionnel"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_tension">Pression arterielle max (mmHg)</Label>
+                    <Input
+                      id="q_tension"
+                      className="bg-white"
+                      type="number"
+                      min={70}
+                      max={230}
+                      value={orderForm.questionnaire.tensionSystoliqueRecente}
+                      onChange={(event) =>
+                        setQuestionnaireField("tensionSystoliqueRecente", event.target.value)
+                      }
+                      placeholder="Optionnel"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_cholesterol">Cholesterol total (mmol/L)</Label>
+                    <Input
+                      id="q_cholesterol"
+                      className="bg-white"
+                      type="number"
+                      min={1}
+                      max={15}
+                      value={orderForm.questionnaire.cholesterolTotal}
+                      onChange={(event) =>
+                        setQuestionnaireField("cholesterolTotal", event.target.value)
+                      }
+                      placeholder="Optionnel"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="q_triglycerides">Graisses sanguines (triglycerides, mmol/L)</Label>
                     <Input
                       id="q_triglycerides"
                       className="bg-white"
                       type="number"
                       min={0}
                       max={20}
-                      value={orderForm.questionnaire.triglycerides}
+                      value={orderForm.questionnaire.triglyceridesRecents}
                       onChange={(event) =>
-                        setQuestionnaireField("triglycerides", event.target.value)
+                        setQuestionnaireField("triglyceridesRecents", event.target.value)
                       }
                       placeholder="Optionnel"
                     />
