@@ -37,6 +37,9 @@ class BiomexRAGService:
         self.hf_generation_model = settings.RAG_HF_GENERATION_MODEL
         self.hf_embedding_model = settings.RAG_HF_EMBEDDING_MODEL
         self.hf_generation_url = settings.RAG_HF_GENERATION_URL
+        self.hf_embedding_url = settings.RAG_HF_EMBEDDING_URL
+        self.hf_router_base_url = self._normalize_router_base_url(settings.RAG_HF_ROUTER_BASE_URL)
+        self.hf_router_provider = settings.RAG_HF_ROUTER_PROVIDER
 
         self.pinecone_api_key = settings.RAG_PINECONE_API_KEY
         self.pinecone_index_host = self._normalize_pinecone_host(settings.RAG_PINECONE_INDEX_HOST)
@@ -49,6 +52,15 @@ class BiomexRAGService:
         value = (host or "").strip()
         if not value:
             return value
+        if value.startswith("http://") or value.startswith("https://"):
+            return value.rstrip("/")
+        return f"https://{value.rstrip('/')}"
+
+    @staticmethod
+    def _normalize_router_base_url(base_url: str) -> str:
+        value = (base_url or "").strip()
+        if not value:
+            return "https://router.huggingface.co"
         if value.startswith("http://") or value.startswith("https://"):
             return value.rstrip("/")
         return f"https://{value.rstrip('/')}"
@@ -70,6 +82,10 @@ class BiomexRAGService:
             "huggingface_token_configured": bool(self.hf_api_token),
             "huggingface_generation_model": self.hf_generation_model,
             "huggingface_embedding_model": self.hf_embedding_model,
+            "huggingface_router_base_url": self.hf_router_base_url,
+            "huggingface_router_provider": self.hf_router_provider or None,
+            "huggingface_custom_generation_url": self.hf_generation_url or None,
+            "huggingface_custom_embedding_url": self.hf_embedding_url or None,
             "pinecone_configured": bool(self.pinecone_api_key and self.pinecone_index_host),
             "pinecone_index_host": self.pinecone_index_host,
             "pinecone_namespace": self.default_namespace,
@@ -99,24 +115,104 @@ class BiomexRAGService:
                 sums[i] += float(val)
         return [val / len(matrix) for val in sums]
 
+    def _router_model_name(self, model_name: str) -> str:
+        model = (model_name or "").strip()
+        provider = (self.hf_router_provider or "").strip()
+        if provider and ":" not in model:
+            return f"{model}:{provider}"
+        return model
+
+    def _hf_post_json(
+        self,
+        *,
+        url: str,
+        payload: dict[str, Any],
+        timeout: int,
+        error_prefix: str,
+    ) -> Any:
+        response = requests.post(url, headers=self._hf_headers(), json=payload, timeout=timeout)
+        if response.status_code >= 400:
+            raise RAGServiceError(f"{error_prefix} ({response.status_code}): {response.text}")
+        try:
+            data = response.json()
+        except ValueError as exc:
+            raise RAGServiceError(f"{error_prefix}: réponse JSON invalide.") from exc
+        if isinstance(data, dict) and data.get("error"):
+            raise RAGServiceError(f"{error_prefix}: {data['error']}")
+        return data
+
+    def _parse_embedding_response(self, data: Any) -> list[float]:
+        # OpenAI-compatible embeddings response:
+        # {"data":[{"embedding":[...]}], ...}
+        if isinstance(data, dict):
+            rows = data.get("data")
+            if isinstance(rows, list) and rows and isinstance(rows[0], dict):
+                emb = rows[0].get("embedding")
+                if isinstance(emb, list) and emb and isinstance(emb[0], (int, float)):
+                    return [float(x) for x in emb]
+            # Some providers may return {"embedding":[...]}
+            emb = data.get("embedding")
+            if isinstance(emb, list) and emb and isinstance(emb[0], (int, float)):
+                return [float(x) for x in emb]
+        return []
+
     def _embed_text(self, text: str) -> list[float]:
         self._validate_rag_config()
         if not text.strip():
             raise RAGServiceError("Le texte à encoder est vide.")
 
-        url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{self.hf_embedding_model}"
-        payload = {
-            "inputs": text,
-            "options": {"wait_for_model": True},
-        }
-        response = requests.post(url, headers=self._hf_headers(), json=payload, timeout=90)
-        if response.status_code >= 400:
-            raise RAGServiceError(
-                f"Hugging Face embedding error ({response.status_code}): {response.text}"
+        router_model = self._router_model_name(self.hf_embedding_model)
+        attempts: list[tuple[str, str, dict[str, Any]]] = []
+
+        if self.hf_embedding_url:
+            attempts.append(
+                (
+                    "custom embedding endpoint",
+                    self.hf_embedding_url,
+                    {"inputs": text, "options": {"wait_for_model": True}},
+                )
             )
-        data = response.json()
-        if isinstance(data, dict) and data.get("error"):
-            raise RAGServiceError(f"Hugging Face embedding error: {data['error']}")
+
+        attempts.extend(
+            [
+                (
+                    "router v1 embeddings",
+                    f"{self.hf_router_base_url}/v1/embeddings",
+                    {"model": router_model, "input": text},
+                ),
+                (
+                    "router hf-inference feature-extraction",
+                    f"{self.hf_router_base_url}/hf-inference/pipeline/feature-extraction/{self.hf_embedding_model}",
+                    {"inputs": text, "options": {"wait_for_model": True}},
+                ),
+                (
+                    "router hf-inference models",
+                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_embedding_model}",
+                    {"inputs": text, "options": {"wait_for_model": True}},
+                ),
+            ]
+        )
+
+        errors: list[str] = []
+        data: Any = None
+        for label, url, payload in attempts:
+            try:
+                data = self._hf_post_json(
+                    url=url,
+                    payload=payload,
+                    timeout=90,
+                    error_prefix=f"Hugging Face embedding error [{label}]",
+                )
+                break
+            except RAGServiceError as exc:
+                errors.append(str(exc))
+                continue
+        else:
+            raise RAGServiceError(" | ".join(errors) if errors else "Embedding indisponible.")
+
+        parsed = self._parse_embedding_response(data)
+        if parsed:
+            return parsed
 
         # Possible response shapes:
         # 1) [0.01, 0.02, ...]
@@ -133,38 +229,108 @@ class BiomexRAGService:
 
         raise RAGServiceError("Format de réponse embedding inattendu.")
 
-    def _generate_answer(self, prompt: str) -> str:
-        self._validate_rag_config()
-        generation_url = self.hf_generation_url or f"https://api-inference.huggingface.co/models/{self.hf_generation_model}"
-        payload = {
-            "inputs": prompt,
-            "parameters": {
-                "max_new_tokens": 512,
-                "temperature": 0.2,
-                "return_full_text": False,
-            },
-            "options": {"wait_for_model": True},
-        }
-        response = requests.post(
-            generation_url,
-            headers=self._hf_headers(),
-            json=payload,
-            timeout=180,
-        )
-        if response.status_code >= 400:
-            raise RAGServiceError(
-                f"Hugging Face generation error ({response.status_code}): {response.text}"
-            )
-        data = response.json()
-        if isinstance(data, dict) and data.get("error"):
-            raise RAGServiceError(f"Hugging Face generation error: {data['error']}")
+    @staticmethod
+    def _extract_generation_text(data: Any) -> str:
+        # OpenAI-compatible chat completions.
+        if isinstance(data, dict):
+            choices = data.get("choices")
+            if isinstance(choices, list) and choices and isinstance(choices[0], dict):
+                choice = choices[0]
+                message = choice.get("message")
+                if isinstance(message, dict):
+                    content = message.get("content")
+                    if isinstance(content, str):
+                        return content.strip()
+                    if isinstance(content, list):
+                        parts = [
+                            str(part.get("text", "")).strip()
+                            for part in content
+                            if isinstance(part, dict) and part.get("type") == "text"
+                        ]
+                        text = "\n".join([part for part in parts if part])
+                        if text:
+                            return text
+                choice_text = choice.get("text")
+                if isinstance(choice_text, str):
+                    return choice_text.strip()
+
+        # Legacy text-generation response.
         if isinstance(data, list) and data and isinstance(data[0], dict) and data[0].get("generated_text"):
-            return data[0]["generated_text"].strip()
+            return str(data[0]["generated_text"]).strip()
         if isinstance(data, dict) and data.get("generated_text"):
             return str(data["generated_text"]).strip()
         if isinstance(data, str):
             return data.strip()
-        raise RAGServiceError("Format de réponse génération inattendu.")
+        return ""
+
+    def _generate_answer(self, prompt: str) -> str:
+        self._validate_rag_config()
+        router_model = self._router_model_name(self.hf_generation_model)
+        attempts: list[tuple[str, str, dict[str, Any]]] = []
+
+        if self.hf_generation_url:
+            attempts.append(
+                (
+                    "custom generation endpoint",
+                    self.hf_generation_url,
+                    {
+                        "inputs": prompt,
+                        "parameters": {
+                            "max_new_tokens": 512,
+                            "temperature": 0.2,
+                            "return_full_text": False,
+                        },
+                        "options": {"wait_for_model": True},
+                    },
+                )
+            )
+
+        attempts.extend(
+            [
+                (
+                    "router v1 chat completions",
+                    f"{self.hf_router_base_url}/v1/chat/completions",
+                    {
+                        "model": router_model,
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": 512,
+                        "temperature": 0.2,
+                    },
+                ),
+                (
+                    "router hf-inference models",
+                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_generation_model}",
+                    {
+                        "inputs": prompt,
+                        "parameters": {
+                            "max_new_tokens": 512,
+                            "temperature": 0.2,
+                            "return_full_text": False,
+                        },
+                        "options": {"wait_for_model": True},
+                    },
+                ),
+            ]
+        )
+
+        errors: list[str] = []
+        for label, url, payload in attempts:
+            try:
+                data = self._hf_post_json(
+                    url=url,
+                    payload=payload,
+                    timeout=180,
+                    error_prefix=f"Hugging Face generation error [{label}]",
+                )
+                text = self._extract_generation_text(data)
+                if text:
+                    return text
+                errors.append(f"Hugging Face generation error [{label}]: format de réponse inattendu.")
+            except RAGServiceError as exc:
+                errors.append(str(exc))
+                continue
+
+        raise RAGServiceError(" | ".join(errors) if errors else "Génération indisponible.")
 
     def _upsert_vectors(self, vectors: list[dict[str, Any]], namespace: str) -> None:
         if not vectors:
