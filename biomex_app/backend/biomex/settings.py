@@ -217,3 +217,16 @@ JAZZMIN_UI_TWEAKS = {
         'success': 'btn-success',
     },
 }
+
+# RAG / LLM Configuration
+RAG_HF_API_TOKEN = os.getenv('RAG_HF_API_TOKEN', '')
+RAG_HF_GENERATION_MODEL = os.getenv('RAG_HF_GENERATION_MODEL', 'm42-health/Med42-v2-8B')
+RAG_HF_EMBEDDING_MODEL = os.getenv('RAG_HF_EMBEDDING_MODEL', 'sentence-transformers/all-MiniLM-L6-v2')
+RAG_HF_GENERATION_URL = os.getenv('RAG_HF_GENERATION_URL', '')
+
+RAG_PINECONE_API_KEY = os.getenv('RAG_PINECONE_API_KEY', '')
+RAG_PINECONE_INDEX_HOST = os.getenv('RAG_PINECONE_INDEX_HOST', '')
+RAG_PINECONE_NAMESPACE = os.getenv('RAG_PINECONE_NAMESPACE', 'biomex-knowledge')
+
+RAG_DEFAULT_TOP_K = int(os.getenv('RAG_DEFAULT_TOP_K', '6'))
+RAG_MAX_CONTEXT_CHARS = int(os.getenv('RAG_MAX_CONTEXT_CHARS', '12000'))

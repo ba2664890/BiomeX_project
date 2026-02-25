@@ -8,8 +8,11 @@ from .models import Recommendation, DailyRecommendation
 from .serializers import (
     RecommendationSerializer,
     RecommendationListSerializer,
-    DailyRecommendationSerializer
+    DailyRecommendationSerializer,
+    RAGChatRequestSerializer,
+    RAGIngestRequestSerializer,
 )
+from .rag_service import BiomexRAGService, RAGConfigurationError, RAGServiceError
 
 
 class UserRecommendationsView(generics.ListAPIView):
@@ -231,3 +234,75 @@ class CreateSampleRecommendationsView(APIView):
             'personalized_created': created_recs,
             'daily_created': created_daily
         })
+
+
+class RAGHealthStatusView(APIView):
+    """Expose RAG integration status."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        service = BiomexRAGService()
+        return Response(service.health_status())
+
+
+class RAGIngestKnowledgeView(APIView):
+    """Ingest nutrition or custom knowledge into Pinecone."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        serializer = RAGIngestRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        payload = serializer.validated_data
+        service = BiomexRAGService()
+
+        try:
+            result = service.ingest_knowledge(
+                source=payload["source"],
+                namespace=(payload.get("namespace") or "").strip() or None,
+                csv_path=(payload.get("csv_path") or "").strip() or None,
+                csv_text_column=(payload.get("csv_text_column") or "").strip() or None,
+                custom_documents=payload.get("documents") or [],
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except (RAGConfigurationError, RAGServiceError) as exc:
+            return Response(
+                {"error": str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as exc:  # pragma: no cover - defensive fallback
+            return Response(
+                {"error": f"Ingestion RAG échouée: {exc}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class RAGChatbotView(APIView):
+    """Answer user questions with retrieval-augmented generation."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = RAGChatRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        payload = serializer.validated_data
+        service = BiomexRAGService()
+
+        try:
+            result = service.answer_question(
+                user=request.user,
+                question=payload["question"],
+                top_k=payload.get("top_k"),
+                namespace=(payload.get("namespace") or "").strip() or None,
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except (RAGConfigurationError, RAGServiceError) as exc:
+            return Response(
+                {"error": str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as exc:  # pragma: no cover - defensive fallback
+            return Response(
+                {"error": f"Chatbot RAG indisponible: {exc}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
