@@ -130,15 +130,55 @@ class BiomexRAGService:
         timeout: int,
         error_prefix: str,
     ) -> Any:
-        response = requests.post(url, headers=self._hf_headers(), json=payload, timeout=timeout)
+        def _trim(value: str, max_len: int = 800) -> str:
+            text = (value or "").replace("\n", " ").strip()
+            if len(text) <= max_len:
+                return text
+            return f"{text[:max_len]}...[truncated]"
+
+        try:
+            response = requests.post(url, headers=self._hf_headers(), json=payload, timeout=timeout)
+        except requests.RequestException as exc:
+            debug_message = (
+                f"[HF DEBUG] network error | stage={error_prefix} | url={url} | error={exc}"
+            )
+            print(debug_message, flush=True)
+            logger.warning(debug_message)
+            raise RAGServiceError(f"{error_prefix} [url={url}] (network): {exc}") from exc
+
         if response.status_code >= 400:
-            raise RAGServiceError(f"{error_prefix} ({response.status_code}): {response.text}")
+            response_body = _trim(response.text)
+            debug_message = (
+                f"[HF DEBUG] request failed | stage={error_prefix} | url={url} | "
+                f"status={response.status_code} | body={response_body}"
+            )
+            print(debug_message, flush=True)
+            logger.warning(debug_message)
+            raise RAGServiceError(
+                f"{error_prefix} ({response.status_code}) [url={url}]: {response_body}"
+            )
         try:
             data = response.json()
         except ValueError as exc:
-            raise RAGServiceError(f"{error_prefix}: réponse JSON invalide.") from exc
+            response_body = _trim(response.text)
+            debug_message = (
+                f"[HF DEBUG] invalid json | stage={error_prefix} | url={url} | "
+                f"status={response.status_code} | body={response_body}"
+            )
+            print(debug_message, flush=True)
+            logger.warning(debug_message)
+            raise RAGServiceError(
+                f"{error_prefix} [url={url}]: réponse JSON invalide."
+            ) from exc
         if isinstance(data, dict) and data.get("error"):
-            raise RAGServiceError(f"{error_prefix}: {data['error']}")
+            api_error = _trim(str(data["error"]))
+            debug_message = (
+                f"[HF DEBUG] api error field | stage={error_prefix} | url={url} | "
+                f"status={response.status_code} | error={api_error}"
+            )
+            print(debug_message, flush=True)
+            logger.warning(debug_message)
+            raise RAGServiceError(f"{error_prefix} [url={url}]: {api_error}")
         return data
 
     def _parse_embedding_response(self, data: Any) -> list[float]:
