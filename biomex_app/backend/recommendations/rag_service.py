@@ -60,7 +60,7 @@ class BiomexRAGService:
     def _normalize_router_base_url(base_url: str) -> str:
         value = (base_url or "").strip()
         if not value:
-            return "https://router.huggingface.co"
+            return "https://api-inference.huggingface.co"
         if value.startswith("http://") or value.startswith("https://"):
             return value.rstrip("/")
         return f"https://{value.rstrip('/')}"
@@ -215,7 +215,12 @@ class BiomexRAGService:
         attempts.extend(
             [
                 (
-                    "router hf-inference feature-extraction",
+                    "standard hf-inference models",
+                    f"https://api-inference.huggingface.co/models/{self.hf_embedding_model}",
+                    {"inputs": text, "options": {"wait_for_model": True}},
+                ),
+                (
+                    "router hf-inference pipeline/feature-extraction",
                     f"{self.hf_router_base_url}/hf-inference/pipeline/feature-extraction/{self.hf_embedding_model}",
                     {"inputs": text, "options": {"wait_for_model": True}},
                 ),
@@ -321,6 +326,16 @@ class BiomexRAGService:
 
         attempts.extend(
             [
+                (
+                    "standard hf-inference chat completions",
+                    "https://api-inference.huggingface.co/v1/chat/completions",
+                    {
+                        "model": router_model,
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": 512,
+                        "temperature": 0.2,
+                    },
+                ),
                 (
                     "router v1 chat completions",
                     f"{self.hf_router_base_url}/v1/chat/completions",
