@@ -27,9 +27,13 @@ class LatestAnalysisView(APIView):
         ).order_by('-created_at').first()
         
         if not analysis:
+            # Keep endpoint stable for fresh accounts with no completed analysis.
             return Response(
-                {'message': 'Aucune analyse trouvée'},
-                status=status.HTTP_404_NOT_FOUND
+                {
+                    'status': 'no_data',
+                    'message': 'Aucune analyse trouvée'
+                },
+                status=status.HTTP_200_OK
             )
         
         serializer = MicrobiomeAnalysisSerializer(analysis)
@@ -130,10 +134,7 @@ class BacteriaBalanceView(APIView):
             ).order_by('-created_at').first()
         
         if not analysis:
-            return Response(
-                {'message': 'Aucune analyse trouvée'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response([], status=status.HTTP_200_OK)
         
         balances = analysis.bacteria_balances.all()
         serializer = BacteriaBalanceSerializer(balances, many=True)
@@ -158,10 +159,7 @@ class HealthMarkersView(APIView):
             ).order_by('-created_at').first()
         
         if not analysis:
-            return Response(
-                {'message': 'Aucune analyse trouvée'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response([], status=status.HTTP_200_OK)
         
         markers = analysis.health_markers.all()
         serializer = HealthMarkerSerializer(markers, many=True)

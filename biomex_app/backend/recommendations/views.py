@@ -265,10 +265,15 @@ class RAGIngestKnowledgeView(APIView):
                 custom_documents=payload.get("documents") or [],
             )
             return Response(result, status=status.HTTP_200_OK)
-        except (RAGConfigurationError, RAGServiceError) as exc:
+        except RAGConfigurationError as exc:
             return Response(
                 {"error": str(exc)},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        except RAGServiceError as exc:
+            return Response(
+                {"error": str(exc)},
+                status=status.HTTP_502_BAD_GATEWAY,
             )
         except Exception as exc:  # pragma: no cover - defensive fallback
             return Response(
@@ -296,10 +301,15 @@ class RAGChatbotView(APIView):
                 namespace=(payload.get("namespace") or "").strip() or None,
             )
             return Response(result, status=status.HTTP_200_OK)
-        except (RAGConfigurationError, RAGServiceError) as exc:
+        except RAGConfigurationError as exc:
             return Response(
                 {"error": str(exc)},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        except RAGServiceError as exc:
+            return Response(
+                {"error": str(exc)},
+                status=status.HTTP_502_BAD_GATEWAY,
             )
         except Exception as exc:  # pragma: no cover - defensive fallback
             return Response(
