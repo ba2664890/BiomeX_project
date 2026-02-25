@@ -201,7 +201,6 @@ class BiomexRAGService:
         if not text.strip():
             raise RAGServiceError("Le texte à encoder est vide.")
 
-        router_model = self._router_model_name(self.hf_embedding_model)
         attempts: list[tuple[str, str, dict[str, Any]]] = []
 
         if self.hf_embedding_url:
@@ -215,11 +214,6 @@ class BiomexRAGService:
 
         attempts.extend(
             [
-                (
-                    "router v1 embeddings",
-                    f"{self.hf_router_base_url}/v1/embeddings",
-                    {"model": router_model, "input": text},
-                ),
                 (
                     "router hf-inference feature-extraction",
                     f"{self.hf_router_base_url}/hf-inference/pipeline/feature-extraction/{self.hf_embedding_model}",
