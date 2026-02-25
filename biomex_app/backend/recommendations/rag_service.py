@@ -400,6 +400,32 @@ class BiomexRAGService:
             )
         return "\n".join(lines)
 
+    @staticmethod
+    def _build_fallback_answer(question: str, sources: list[dict[str, Any]]) -> str:
+        source_names = [
+            str(src.get("name") or src.get("source_type") or src.get("id") or "").strip()
+            for src in sources
+        ]
+        source_names = [name for name in source_names if name]
+        source_summary = ", ".join(source_names[:5]) if source_names else "Aucune source récupérée."
+
+        return (
+            "1) Synthèse clinique courte\n"
+            "Le service de génération IA est temporairement indisponible. "
+            "Je ne peux pas fournir une synthèse clinique personnalisée fiable pour le moment.\n\n"
+            "2) Recommandations alimentaires concrètes (3 à 5)\n"
+            "- Prioriser des aliments peu transformés et riches en fibres (légumineuses, légumes, céréales complètes).\n"
+            "- Introduire progressivement des aliments fermentés tolérés.\n"
+            "- Hydratation régulière et suivi des symptômes digestifs pendant 7 jours.\n"
+            "- Poser à nouveau la question dans quelques minutes lorsque le service IA sera revenu.\n\n"
+            "3) Précautions / limites\n"
+            "- Réponse de secours non générée par le modèle clinique.\n"
+            "- Ne remplace pas un avis médical.\n\n"
+            "4) Sources utilisées (liste courte)\n"
+            f"- {source_summary}\n\n"
+            f"Question reçue: {question}"
+        )
+
     def answer_question(
         self,
         user,
@@ -415,29 +441,35 @@ class BiomexRAGService:
         namespace_value = namespace or self.default_namespace
         top_k_value = top_k or self.default_top_k
 
-        query_vector = self._embed_text(question_clean)
-        matches = self._query_vectors(query_vector=query_vector, top_k=top_k_value, namespace=namespace_value)
-
         context_parts = []
         sources = []
-        chars = 0
-        for match in matches:
-            metadata = match.get("metadata", {}) or {}
-            snippet = str(metadata.get("text", "")).strip()
-            if not snippet:
-                continue
-            if chars + len(snippet) > self.max_context_chars:
-                break
-            context_parts.append(snippet)
-            chars += len(snippet)
-            sources.append(
-                {
-                    "id": match.get("id"),
-                    "score": match.get("score"),
-                    "source_type": metadata.get("source_type"),
-                    "name": metadata.get("name") or metadata.get("title") or metadata.get("csv_file"),
-                }
-            )
+        warnings: list[str] = []
+
+        try:
+            query_vector = self._embed_text(question_clean)
+            matches = self._query_vectors(query_vector=query_vector, top_k=top_k_value, namespace=namespace_value)
+
+            chars = 0
+            for match in matches:
+                metadata = match.get("metadata", {}) or {}
+                snippet = str(metadata.get("text", "")).strip()
+                if not snippet:
+                    continue
+                if chars + len(snippet) > self.max_context_chars:
+                    break
+                context_parts.append(snippet)
+                chars += len(snippet)
+                sources.append(
+                    {
+                        "id": match.get("id"),
+                        "score": match.get("score"),
+                        "source_type": metadata.get("source_type"),
+                        "name": metadata.get("name") or metadata.get("title") or metadata.get("csv_file"),
+                    }
+                )
+        except RAGServiceError as exc:
+            warnings.append(f"Retrieval indisponible: {exc}")
+            logger.warning("RAG retrieval fallback triggered: %s", exc)
 
         context_block = "\n\n---\n\n".join(context_parts) if context_parts else "Aucun contexte retrouvé."
         user_context = self._build_user_context(user)
@@ -459,10 +491,18 @@ class BiomexRAGService:
             "3) Précautions / limites\n"
             "4) Sources utilisées (liste courte)\n"
         )
-        answer = self._generate_answer(prompt)
+        try:
+            answer = self._generate_answer(prompt)
+        except RAGServiceError as exc:
+            warnings.append(f"Generation indisponible: {exc}")
+            logger.warning("RAG generation fallback triggered: %s", exc)
+            answer = self._build_fallback_answer(question=question_clean, sources=sources)
+
         return {
             "answer": answer,
             "sources": sources,
             "retrieved_count": len(sources),
             "namespace": namespace_value,
+            "degraded": bool(warnings),
+            "warnings": warnings,
         }
