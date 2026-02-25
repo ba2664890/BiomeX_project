@@ -60,7 +60,7 @@ class BiomexRAGService:
     def _normalize_router_base_url(base_url: str) -> str:
         value = (base_url or "").strip()
         if not value:
-            return "https://api-inference.huggingface.co"
+            return "https://router.huggingface.co"
         if value.startswith("http://") or value.startswith("https://"):
             return value.rstrip("/")
         return f"https://{value.rstrip('/')}"
@@ -215,9 +215,9 @@ class BiomexRAGService:
         attempts.extend(
             [
                 (
-                    "standard hf-inference models",
-                    f"https://api-inference.huggingface.co/models/{self.hf_embedding_model}",
-                    {"inputs": text, "options": {"wait_for_model": True}},
+                    "router hf-inference v1 embeddings",
+                    f"{self.hf_router_base_url}/hf-inference/v1/embeddings",
+                    {"model": self.hf_embedding_model, "input": text},
                 ),
                 (
                     "router hf-inference pipeline/feature-extraction",
@@ -327,8 +327,8 @@ class BiomexRAGService:
         attempts.extend(
             [
                 (
-                    "standard hf-inference chat completions",
-                    "https://api-inference.huggingface.co/v1/chat/completions",
+                    "router hf-inference v1 chat completions",
+                    f"{self.hf_router_base_url}/hf-inference/v1/chat/completions",
                     {
                         "model": router_model,
                         "messages": [{"role": "user", "content": prompt}],
@@ -344,19 +344,6 @@ class BiomexRAGService:
                         "messages": [{"role": "user", "content": prompt}],
                         "max_tokens": 512,
                         "temperature": 0.2,
-                    },
-                ),
-                (
-                    "router hf-inference models",
-                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_generation_model}",
-                    {
-                        "inputs": prompt,
-                        "parameters": {
-                            "max_new_tokens": 512,
-                            "temperature": 0.2,
-                            "return_full_text": False,
-                        },
-                        "options": {"wait_for_model": True},
                     },
                 ),
             ]
