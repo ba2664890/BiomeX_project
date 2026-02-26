@@ -4,6 +4,7 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse, urlunparse
 
 import requests
 from django.conf import settings
@@ -36,8 +37,8 @@ class BiomexRAGService:
         self.hf_api_token = settings.RAG_HF_API_TOKEN
         self.hf_generation_model = settings.RAG_HF_GENERATION_MODEL
         self.hf_embedding_model = settings.RAG_HF_EMBEDDING_MODEL
-        self.hf_generation_url = settings.RAG_HF_GENERATION_URL
-        self.hf_embedding_url = settings.RAG_HF_EMBEDDING_URL
+        self.hf_generation_url = self._normalize_hf_endpoint_url(settings.RAG_HF_GENERATION_URL)
+        self.hf_embedding_url = self._normalize_hf_endpoint_url(settings.RAG_HF_EMBEDDING_URL)
         self.hf_router_base_url = self._normalize_router_base_url(settings.RAG_HF_ROUTER_BASE_URL)
         self.hf_router_provider = settings.RAG_HF_ROUTER_PROVIDER
 
@@ -58,12 +59,46 @@ class BiomexRAGService:
 
     @staticmethod
     def _normalize_router_base_url(base_url: str) -> str:
+        legacy_host = "api-inference.huggingface.co"
+        router_host = "router.huggingface.co"
         value = (base_url or "").strip()
         if not value:
-            return "https://router.huggingface.co"
+            return f"https://{router_host}"
         if value.startswith("http://") or value.startswith("https://"):
-            return value.rstrip("/")
-        return f"https://{value.rstrip('/')}"
+            normalized = value.rstrip("/")
+        else:
+            normalized = f"https://{value.rstrip('/')}"
+
+        parsed = urlparse(normalized)
+        if parsed.netloc.lower() == legacy_host:
+            logger.warning(
+                "Deprecated Hugging Face base URL detected (%s). Falling back to https://%s.",
+                legacy_host,
+                router_host,
+            )
+            parsed = parsed._replace(scheme="https", netloc=router_host)
+            return urlunparse(parsed).rstrip("/")
+        return normalized
+
+    @staticmethod
+    def _normalize_hf_endpoint_url(url: str) -> str:
+        legacy_host = "api-inference.huggingface.co"
+        router_host = "router.huggingface.co"
+        value = (url or "").strip()
+        if not value:
+            return ""
+        if not (value.startswith("http://") or value.startswith("https://")):
+            value = f"https://{value}"
+        parsed = urlparse(value)
+        if parsed.netloc.lower() == legacy_host:
+            logger.warning(
+                "Deprecated Hugging Face endpoint detected (%s). Falling back to https://%s.",
+                legacy_host,
+                router_host,
+            )
+            parsed = parsed._replace(scheme="https", netloc=router_host)
+            return urlunparse(parsed)
+        return value
 
     def _validate_rag_config(self) -> None:
         required = {
