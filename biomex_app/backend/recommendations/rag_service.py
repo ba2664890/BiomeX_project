@@ -145,6 +145,23 @@ class BiomexRAGService:
             or "does not exist" in value
         )
 
+    @staticmethod
+    def _is_provider_not_supported_error(error_text: str) -> bool:
+        value = (error_text or "").lower()
+        return (
+            "\"code\":\"model_not_supported\"" in value
+            or "'model_not_supported'" in value
+        ) and "not supported by provider" in value
+
+    @staticmethod
+    def _is_not_chat_model_error(error_text: str) -> bool:
+        value = (error_text or "").lower()
+        return (
+            "\"code\":\"model_not_supported\"" in value
+            or "'model_not_supported'" in value
+            or "not a chat model" in value
+        ) and "chat model" in value
+
     def _validate_rag_config(self) -> None:
         required = {
             "RAG_HF_API_TOKEN": self.hf_api_token,
@@ -212,6 +229,19 @@ class BiomexRAGService:
         if provider and ":" not in model:
             return f"{model}:{provider}"
         return model
+
+    def _router_model_variants(self, model_name: str) -> list[str]:
+        model = (model_name or "").strip()
+        if not model:
+            return []
+        values: list[str] = []
+        with_provider = self._router_model_name(model)
+        if with_provider:
+            values.append(with_provider)
+        # If provider is forced, retry without provider to let router choose.
+        if ":" not in model and with_provider != model:
+            values.append(model)
+        return values
 
     def _hf_post_json(
         self,
