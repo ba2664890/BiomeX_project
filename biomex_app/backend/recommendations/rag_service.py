@@ -41,6 +41,9 @@ class BiomexRAGService:
         self.hf_embedding_url = self._normalize_hf_endpoint_url(settings.RAG_HF_EMBEDDING_URL)
         self.hf_router_base_url = self._normalize_router_base_url(settings.RAG_HF_ROUTER_BASE_URL)
         self.hf_router_provider = settings.RAG_HF_ROUTER_PROVIDER
+        self.hf_fallback_generation_models = self._parse_model_list(
+            getattr(settings, "RAG_HF_FALLBACK_GENERATION_MODELS", "")
+        )
 
         self.pinecone_api_key = settings.RAG_PINECONE_API_KEY
         self.pinecone_index_host = self._normalize_pinecone_host(settings.RAG_PINECONE_INDEX_HOST)
@@ -109,6 +112,39 @@ class BiomexRAGService:
             return urlunparse(parsed)
         return value
 
+    @staticmethod
+    def _parse_model_list(raw_models: Any) -> list[str]:
+        if isinstance(raw_models, str):
+            items = [item.strip() for item in raw_models.split(",")]
+        elif isinstance(raw_models, (list, tuple, set)):
+            items = [str(item).strip() for item in raw_models]
+        else:
+            items = []
+        values: list[str] = []
+        for model in items:
+            if model and model not in values:
+                values.append(model)
+        return values
+
+    def _generation_model_candidates(self) -> list[str]:
+        values: list[str] = []
+        primary = (self.hf_generation_model or "").strip()
+        if primary:
+            values.append(primary)
+        for model in self.hf_fallback_generation_models:
+            if model and model not in values:
+                values.append(model)
+        return values
+
+    @staticmethod
+    def _is_model_not_found_error(error_text: str) -> bool:
+        value = (error_text or "").lower()
+        return (
+            "\"code\":\"model_not_found\"" in value
+            or "'model_not_found'" in value
+            or "does not exist" in value
+        )
+
     def _validate_rag_config(self) -> None:
         required = {
             "RAG_HF_API_TOKEN": self.hf_api_token,
@@ -138,6 +174,7 @@ class BiomexRAGService:
             "huggingface_embedding_model": self.hf_embedding_model,
             "huggingface_router_base_url": self.hf_router_base_url,
             "huggingface_router_provider": self.hf_router_provider or None,
+            "huggingface_fallback_generation_models": self.hf_fallback_generation_models,
             "huggingface_custom_generation_url": self.hf_generation_url or None,
             "huggingface_custom_embedding_url": self.hf_embedding_url or None,
             "pinecone_configured": bool(self.pinecone_api_key and self.pinecone_index_host),
@@ -358,15 +395,12 @@ class BiomexRAGService:
 
     def _generate_answer(self, prompt: str) -> str:
         self._validate_rag_config()
-        router_model = self._router_model_name(self.hf_generation_model)
-        attempts: list[tuple[str, str, dict[str, Any]]] = []
-
+        errors: list[str] = []
         if self.hf_generation_url:
-            attempts.append(
-                (
-                    "custom generation endpoint",
-                    self.hf_generation_url,
-                    {
+            try:
+                data = self._hf_post_json(
+                    url=self.hf_generation_url,
+                    payload={
                         "inputs": prompt,
                         "parameters": {
                             "max_new_tokens": 512,
@@ -375,14 +409,34 @@ class BiomexRAGService:
                         },
                         "options": {"wait_for_model": True},
                     },
+                    timeout=180,
+                    error_prefix="Hugging Face generation error [custom generation endpoint]",
                 )
-            )
+                text = self._extract_generation_text(data)
+                if text:
+                    return text
+                errors.append(
+                    "Hugging Face generation error [custom generation endpoint]: format de réponse inattendu."
+                )
+            except RAGServiceError as exc:
+                errors.append(str(exc))
 
-        attempts.extend(
-            [
+        for generation_model in self._generation_model_candidates():
+            router_model = self._router_model_name(generation_model)
+            attempts: list[tuple[str, str, dict[str, Any]]] = [
+                (
+                    "router v1 chat completions",
+                    f"{self.hf_router_base_url}/v1/chat/completions",
+                    {
+                        "model": router_model,
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": 512,
+                        "temperature": 0.2,
+                    },
+                ),
                 (
                     "router text-generation pipeline",
-                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_generation_model}/pipeline/text-generation",
+                    f"{self.hf_router_base_url}/hf-inference/models/{generation_model}/pipeline/text-generation",
                     {
                         "inputs": prompt,
                         "parameters": {
@@ -394,7 +448,7 @@ class BiomexRAGService:
                 ),
                 (
                     "router models directly",
-                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_generation_model}",
+                    f"{self.hf_router_base_url}/hf-inference/models/{generation_model}",
                     {
                         "inputs": prompt,
                         "parameters": {
@@ -405,45 +459,54 @@ class BiomexRAGService:
                         "options": {"wait_for_model": True},
                     },
                 ),
-                (
-                    "router v1 completions",
-                    f"{self.hf_router_base_url}/v1/completions",
-                    {
-                        "model": router_model,
-                        "prompt": prompt,
-                        "max_tokens": 512,
-                        "temperature": 0.2,
-                    },
-                ),
-                (
-                    "router v1 chat completions",
-                    f"{self.hf_router_base_url}/v1/chat/completions",
-                    {
-                        "model": router_model,
-                        "messages": [{"role": "user", "content": prompt}],
-                        "max_tokens": 512,
-                        "temperature": 0.2,
-                    },
-                ),
             ]
-        )
 
-        errors: list[str] = []
-        for label, url, payload in attempts:
-            try:
-                data = self._hf_post_json(
-                    url=url,
-                    payload=payload,
-                    timeout=180,
-                    error_prefix=f"Hugging Face generation error [{label}]",
-                )
-                text = self._extract_generation_text(data)
-                if text:
-                    return text
-                errors.append(f"Hugging Face generation error [{label}]: format de réponse inattendu.")
-            except RAGServiceError as exc:
-                errors.append(str(exc))
+            model_not_found = False
+            for label, url, payload in attempts:
+                try:
+                    data = self._hf_post_json(
+                        url=url,
+                        payload=payload,
+                        timeout=180,
+                        error_prefix=f"Hugging Face generation error [{label}]",
+                    )
+                    text = self._extract_generation_text(data)
+                    if text:
+                        return text
+                    errors.append(f"Hugging Face generation error [{label}]: format de réponse inattendu.")
+                except RAGServiceError as exc:
+                    error_text = str(exc)
+                    errors.append(error_text)
+                    if label == "router v1 chat completions" and self._is_model_not_found_error(error_text):
+                        logger.warning(
+                            "Hugging Face router model not found (%s); trying next fallback model.",
+                            router_model,
+                        )
+                        model_not_found = True
+                        break
+                    continue
+            if model_not_found:
                 continue
+
+        try:
+            data = self._hf_post_json(
+                url=f"{self.hf_router_base_url}/v1/chat/completions",
+                payload={
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": 512,
+                    "temperature": 0.2,
+                },
+                timeout=180,
+                error_prefix="Hugging Face generation error [router v1 chat completions no model]",
+            )
+            text = self._extract_generation_text(data)
+            if text:
+                return text
+            errors.append(
+                "Hugging Face generation error [router v1 chat completions no model]: format de réponse inattendu."
+            )
+        except RAGServiceError as exc:
+            errors.append(str(exc))
 
         raise RAGServiceError(" | ".join(errors) if errors else "Génération indisponible.")
 
