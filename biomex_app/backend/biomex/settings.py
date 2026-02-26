@@ -71,9 +71,16 @@ WSGI_APPLICATION = 'biomex.wsgi.application'
 
 # Database - Neon PostgreSQL
 DATABASE_URL = os.getenv('DATABASE_URL')
+DB_CONN_MAX_AGE = int(os.getenv('DB_CONN_MAX_AGE', '0'))
+DB_CONN_HEALTH_CHECKS = os.getenv('DB_CONN_HEALTH_CHECKS', 'True').lower() == 'true'
+DB_CONNECT_TIMEOUT = int(os.getenv('DB_CONNECT_TIMEOUT', '10'))
 if DATABASE_URL:
+    db_config = dj_database_url.parse(DATABASE_URL, conn_max_age=DB_CONN_MAX_AGE)
+    db_config['CONN_HEALTH_CHECKS'] = DB_CONN_HEALTH_CHECKS
+    db_config.setdefault('OPTIONS', {})
+    db_config['OPTIONS'].setdefault('connect_timeout', DB_CONNECT_TIMEOUT)
     DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+        'default': db_config
     }
 else:
     DATABASES = {
@@ -84,6 +91,11 @@ else:
             'PASSWORD': os.getenv('DB_PASSWORD', 'password'),
             'HOST': os.getenv('DB_HOST', 'localhost'),
             'PORT': os.getenv('DB_PORT', '5432'),
+            'CONN_MAX_AGE': DB_CONN_MAX_AGE,
+            'CONN_HEALTH_CHECKS': DB_CONN_HEALTH_CHECKS,
+            'OPTIONS': {
+                'connect_timeout': DB_CONNECT_TIMEOUT,
+            },
         }
     }
 
@@ -220,7 +232,7 @@ JAZZMIN_UI_TWEAKS = {
 
 # RAG / LLM Configuration
 RAG_HF_API_TOKEN = os.getenv('RAG_HF_API_TOKEN', '')
-RAG_HF_GENERATION_MODEL = os.getenv('RAG_HF_GENERATION_MODEL', 'microsoft/BioGPT-Large')
+RAG_HF_GENERATION_MODEL = os.getenv('RAG_HF_GENERATION_MODEL', 'm42-health/Med42-v2-8B')
 RAG_HF_EMBEDDING_MODEL = os.getenv('RAG_HF_EMBEDDING_MODEL', 'sentence-transformers/all-MiniLM-L6-v2')
 RAG_HF_ROUTER_BASE_URL = os.getenv('RAG_HF_ROUTER_BASE_URL', 'https://router.huggingface.co')
 RAG_HF_ROUTER_PROVIDER = os.getenv('RAG_HF_ROUTER_PROVIDER', '')

@@ -393,6 +393,29 @@ class BiomexRAGService:
                     },
                 ),
                 (
+                    "router models directly",
+                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_generation_model}",
+                    {
+                        "inputs": prompt,
+                        "parameters": {
+                            "max_new_tokens": 512,
+                            "temperature": 0.2,
+                            "return_full_text": False,
+                        },
+                        "options": {"wait_for_model": True},
+                    },
+                ),
+                (
+                    "router v1 completions",
+                    f"{self.hf_router_base_url}/v1/completions",
+                    {
+                        "model": router_model,
+                        "prompt": prompt,
+                        "max_tokens": 512,
+                        "temperature": 0.2,
+                    },
+                ),
+                (
                     "router v1 chat completions",
                     f"{self.hf_router_base_url}/v1/chat/completions",
                     {
