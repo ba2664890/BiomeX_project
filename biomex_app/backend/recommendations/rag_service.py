@@ -60,7 +60,7 @@ class BiomexRAGService:
     def _normalize_router_base_url(base_url: str) -> str:
         value = (base_url or "").strip()
         if not value:
-            return "https://router.huggingface.co"
+            return "https://api-inference.huggingface.co"
         if value.startswith("http://") or value.startswith("https://"):
             return value.rstrip("/")
         return f"https://{value.rstrip('/')}"
@@ -215,19 +215,24 @@ class BiomexRAGService:
         attempts.extend(
             [
                 (
-                    "router v1 embeddings",
-                    f"{self.hf_router_base_url}/v1/embeddings",
-                    {"model": self.hf_embedding_model, "input": text},
+                    "standard hf-inference models",
+                    f"https://api-inference.huggingface.co/models/{self.hf_embedding_model}",
+                    {"inputs": text, "options": {"wait_for_model": True}},
                 ),
                 (
                     "router models directly",
-                    f"{self.hf_router_base_url}/models/{self.hf_embedding_model}",
+                    f"https://router.huggingface.co/models/{self.hf_embedding_model}",
                     {"inputs": text, "options": {"wait_for_model": True}},
                 ),
                 (
                     "router models list-input",
-                    f"{self.hf_router_base_url}/models/{self.hf_embedding_model}",
+                    f"https://router.huggingface.co/models/{self.hf_embedding_model}",
                     {"inputs": [text], "options": {"wait_for_model": True}},
+                ),
+                (
+                    "router v1 embeddings",
+                    f"https://router.huggingface.co/v1/embeddings",
+                    {"model": self.hf_embedding_model, "input": text},
                 ),
             ]
         )
@@ -327,18 +332,8 @@ class BiomexRAGService:
         attempts.extend(
             [
                 (
-                    "router v1 chat completions",
-                    f"{self.hf_router_base_url}/v1/chat/completions",
-                    {
-                        "model": router_model,
-                        "messages": [{"role": "user", "content": prompt}],
-                        "max_tokens": 512,
-                        "temperature": 0.2,
-                    },
-                ),
-                (
-                    "router models directly",
-                    f"{self.hf_router_base_url}/models/{self.hf_generation_model}",
+                    "standard hf-inference models",
+                    f"https://api-inference.huggingface.co/models/{self.hf_generation_model}",
                     {
                         "inputs": prompt,
                         "parameters": {
@@ -347,6 +342,16 @@ class BiomexRAGService:
                             "return_full_text": False,
                         },
                         "options": {"wait_for_model": True},
+                    },
+                ),
+                (
+                    "router v1 chat completions",
+                    "https://router.huggingface.co/v1/chat/completions",
+                    {
+                        "model": router_model,
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": 512,
+                        "temperature": 0.2,
                     },
                 ),
             ]
