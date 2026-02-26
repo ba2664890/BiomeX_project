@@ -215,19 +215,19 @@ class BiomexRAGService:
         attempts.extend(
             [
                 (
-                    "router hf-inference v1 embeddings",
-                    f"{self.hf_router_base_url}/hf-inference/v1/embeddings",
+                    "router v1 embeddings",
+                    f"{self.hf_router_base_url}/v1/embeddings",
                     {"model": self.hf_embedding_model, "input": text},
                 ),
                 (
-                    "router hf-inference pipeline/feature-extraction",
-                    f"{self.hf_router_base_url}/hf-inference/pipeline/feature-extraction/{self.hf_embedding_model}",
+                    "router models directly",
+                    f"{self.hf_router_base_url}/models/{self.hf_embedding_model}",
                     {"inputs": text, "options": {"wait_for_model": True}},
                 ),
                 (
-                    "router hf-inference models",
-                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_embedding_model}",
-                    {"inputs": text, "options": {"wait_for_model": True}},
+                    "router models list-input",
+                    f"{self.hf_router_base_url}/models/{self.hf_embedding_model}",
+                    {"inputs": [text], "options": {"wait_for_model": True}},
                 ),
             ]
         )
@@ -327,8 +327,8 @@ class BiomexRAGService:
         attempts.extend(
             [
                 (
-                    "router hf-inference v1 chat completions",
-                    f"{self.hf_router_base_url}/hf-inference/v1/chat/completions",
+                    "router v1 chat completions",
+                    f"{self.hf_router_base_url}/v1/chat/completions",
                     {
                         "model": router_model,
                         "messages": [{"role": "user", "content": prompt}],
@@ -337,13 +337,16 @@ class BiomexRAGService:
                     },
                 ),
                 (
-                    "router v1 chat completions",
-                    f"{self.hf_router_base_url}/v1/chat/completions",
+                    "router models directly",
+                    f"{self.hf_router_base_url}/models/{self.hf_generation_model}",
                     {
-                        "model": router_model,
-                        "messages": [{"role": "user", "content": prompt}],
-                        "max_tokens": 512,
-                        "temperature": 0.2,
+                        "inputs": prompt,
+                        "parameters": {
+                            "max_new_tokens": 512,
+                            "temperature": 0.2,
+                            "return_full_text": False,
+                        },
+                        "options": {"wait_for_model": True},
                     },
                 ),
             ]
