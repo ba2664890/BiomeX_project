@@ -58,6 +58,15 @@ class BiomexRAGService:
         return f"https://{value.rstrip('/')}"
 
     @staticmethod
+    def _extract_hostname(url_or_host: str) -> str:
+        value = (url_or_host or "").strip()
+        if not value:
+            return ""
+        if not (value.startswith("http://") or value.startswith("https://")):
+            value = f"https://{value}"
+        return urlparse(value).netloc.lower().strip()
+
+    @staticmethod
     def _normalize_router_base_url(base_url: str) -> str:
         legacy_host = "api-inference.huggingface.co"
         router_host = "router.huggingface.co"
@@ -110,6 +119,16 @@ class BiomexRAGService:
         if missing:
             raise RAGConfigurationError(
                 f"Configuration RAG manquante: {', '.join(missing)}"
+            )
+
+        pinecone_host = self._extract_hostname(self.pinecone_index_host)
+        # Pinecone data plane requires the full index host (FQDN), not an index name.
+        if not pinecone_host or "." not in pinecone_host:
+            raise RAGConfigurationError(
+                "RAG_PINECONE_INDEX_HOST invalide. "
+                "Utilise le host complet de l'index Pinecone (ex: "
+                "'your-index-xxxx.svc.aped-4627-b74a.pinecone.io'), "
+                "pas un simple nom d'index comme 'multilingual-e5-large-index'."
             )
 
     def health_status(self) -> dict[str, Any]:
@@ -413,7 +432,12 @@ class BiomexRAGService:
             "namespace": namespace,
             "vectors": vectors,
         }
-        response = requests.post(url, headers=self._pinecone_headers(), json=payload, timeout=120)
+        try:
+            response = requests.post(url, headers=self._pinecone_headers(), json=payload, timeout=120)
+        except requests.RequestException as exc:
+            raise RAGServiceError(
+                f"Pinecone upsert error [url={url}] (network): {exc}"
+            ) from exc
         if response.status_code >= 400:
             raise RAGServiceError(
                 f"Pinecone upsert error ({response.status_code}): {response.text}"
@@ -427,12 +451,20 @@ class BiomexRAGService:
             "topK": top_k,
             "includeMetadata": True,
         }
-        response = requests.post(url, headers=self._pinecone_headers(), json=payload, timeout=60)
+        try:
+            response = requests.post(url, headers=self._pinecone_headers(), json=payload, timeout=60)
+        except requests.RequestException as exc:
+            raise RAGServiceError(
+                f"Pinecone query error [url={url}] (network): {exc}"
+            ) from exc
         if response.status_code >= 400:
             raise RAGServiceError(
                 f"Pinecone query error ({response.status_code}): {response.text}"
             )
-        data = response.json()
+        try:
+            data = response.json()
+        except ValueError as exc:
+            raise RAGServiceError("Pinecone query error: réponse JSON invalide.") from exc
         return data.get("matches", []) if isinstance(data, dict) else []
 
     @staticmethod
