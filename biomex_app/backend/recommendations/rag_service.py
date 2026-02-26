@@ -60,7 +60,7 @@ class BiomexRAGService:
     def _normalize_router_base_url(base_url: str) -> str:
         value = (base_url or "").strip()
         if not value:
-            return "https://api-inference.huggingface.co"
+            return "https://router.huggingface.co"
         if value.startswith("http://") or value.startswith("https://"):
             return value.rstrip("/")
         return f"https://{value.rstrip('/')}"
@@ -215,24 +215,19 @@ class BiomexRAGService:
         attempts.extend(
             [
                 (
-                    "standard hf-inference models",
-                    f"https://api-inference.huggingface.co/models/{self.hf_embedding_model}",
+                    "router feature-extraction pipeline",
+                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_embedding_model}/pipeline/feature-extraction",
                     {"inputs": text, "options": {"wait_for_model": True}},
                 ),
                 (
                     "router models directly",
-                    f"https://router.huggingface.co/models/{self.hf_embedding_model}",
+                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_embedding_model}",
                     {"inputs": text, "options": {"wait_for_model": True}},
                 ),
                 (
                     "router models list-input",
-                    f"https://router.huggingface.co/models/{self.hf_embedding_model}",
+                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_embedding_model}",
                     {"inputs": [text], "options": {"wait_for_model": True}},
-                ),
-                (
-                    "router v1 embeddings",
-                    f"https://router.huggingface.co/v1/embeddings",
-                    {"model": self.hf_embedding_model, "input": text},
                 ),
             ]
         )
@@ -332,21 +327,20 @@ class BiomexRAGService:
         attempts.extend(
             [
                 (
-                    "standard hf-inference models",
-                    f"https://api-inference.huggingface.co/models/{self.hf_generation_model}",
+                    "router text-generation pipeline",
+                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_generation_model}/pipeline/text-generation",
                     {
                         "inputs": prompt,
                         "parameters": {
                             "max_new_tokens": 512,
                             "temperature": 0.2,
-                            "return_full_text": False,
                         },
                         "options": {"wait_for_model": True},
                     },
                 ),
                 (
                     "router v1 chat completions",
-                    "https://router.huggingface.co/v1/chat/completions",
+                    f"{self.hf_router_base_url}/v1/chat/completions",
                     {
                         "model": router_model,
                         "messages": [{"role": "user", "content": prompt}],
