@@ -421,7 +421,14 @@ class BiomexRAGService:
             except RAGServiceError as exc:
                 errors.append(str(exc))
 
-        for generation_model in self._generation_model_candidates():
+        generation_models = self._generation_model_candidates()
+        if not generation_models:
+            raise RAGConfigurationError(
+                "RAG_HF_GENERATION_MODEL manquant. "
+                "Définis un modèle HF Router valide (ex: Qwen/Qwen2.5-7B-Instruct)."
+            )
+
+        for generation_model in generation_models:
             router_model = self._router_model_name(generation_model)
             attempts: list[tuple[str, str, dict[str, Any]]] = [
                 (
@@ -487,26 +494,6 @@ class BiomexRAGService:
                     continue
             if model_not_found:
                 continue
-
-        try:
-            data = self._hf_post_json(
-                url=f"{self.hf_router_base_url}/v1/chat/completions",
-                payload={
-                    "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": 512,
-                    "temperature": 0.2,
-                },
-                timeout=180,
-                error_prefix="Hugging Face generation error [router v1 chat completions no model]",
-            )
-            text = self._extract_generation_text(data)
-            if text:
-                return text
-            errors.append(
-                "Hugging Face generation error [router v1 chat completions no model]: format de réponse inattendu."
-            )
-        except RAGServiceError as exc:
-            errors.append(str(exc))
 
         raise RAGServiceError(" | ".join(errors) if errors else "Génération indisponible.")
 

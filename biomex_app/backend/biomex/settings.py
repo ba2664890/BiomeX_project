@@ -232,13 +232,16 @@ JAZZMIN_UI_TWEAKS = {
 
 # RAG / LLM Configuration
 RAG_HF_API_TOKEN = os.getenv('RAG_HF_API_TOKEN', '')
-RAG_HF_GENERATION_MODEL = os.getenv('RAG_HF_GENERATION_MODEL', '')
+RAG_HF_GENERATION_MODEL = os.getenv('RAG_HF_GENERATION_MODEL', 'Qwen/Qwen2.5-7B-Instruct')
 RAG_HF_EMBEDDING_MODEL = os.getenv('RAG_HF_EMBEDDING_MODEL', 'sentence-transformers/all-MiniLM-L6-v2')
 RAG_HF_ROUTER_BASE_URL = os.getenv('RAG_HF_ROUTER_BASE_URL', 'https://router.huggingface.co')
 RAG_HF_ROUTER_PROVIDER = os.getenv('RAG_HF_ROUTER_PROVIDER', '')
 RAG_HF_GENERATION_URL = os.getenv('RAG_HF_GENERATION_URL', '')
 RAG_HF_EMBEDDING_URL = os.getenv('RAG_HF_EMBEDDING_URL', '')
-RAG_HF_FALLBACK_GENERATION_MODELS = os.getenv('RAG_HF_FALLBACK_GENERATION_MODELS', '')
+RAG_HF_FALLBACK_GENERATION_MODELS = os.getenv(
+    'RAG_HF_FALLBACK_GENERATION_MODELS',
+    'meta-llama/Llama-3.1-8B-Instruct,mistralai/Mistral-7B-Instruct-v0.3,google/gemma-2-2b-it',
+)
 
 RAG_PINECONE_API_KEY = os.getenv('RAG_PINECONE_API_KEY', '')
 RAG_PINECONE_INDEX_HOST = os.getenv('RAG_PINECONE_INDEX_HOST', '')
