@@ -241,7 +241,7 @@ class BiomexRAGService:
             response_body = _trim(response.text)
             debug_message = (
                 f"[HF DEBUG] request failed | stage={error_prefix} | url={url} | "
-                f"status={response.status_code} | body={response_body}"
+                f"status={response.status_code} | payload={payload} | body={response_body}"
             )
             print(debug_message, flush=True)
             logger.warning(debug_message)
