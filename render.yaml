@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: biomex-backend
+    env: docker
+    rootDir: biomex_app/backend
+    healthCheckPath: /api/health/

@@ -1,0 +1,8 @@
+# Local SDK/toolchain caches (must not be versioned)
+/.jdk/
+
+# Local generated release artifact
+/biomex_app/frontend/app-release-permissions.apk
+
+# Local Flutter build symlink/output
+/biomex_app/frontend/build
