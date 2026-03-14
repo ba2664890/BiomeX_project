@@ -8,7 +8,7 @@ const teamMembers = [
   {
     name: "Mouhammadou Dia",
     role: "CEO & Co-Fondateur",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
+    image: "",
     bio: "Data Scientist avec une vision stratégique pour démocratiser la médecine de précision en Afrique.",
     credentials: ["Data Scientist", "Fundraising", "Vision stratégique"],
     social: { linkedin: "#", twitter: "#" },
@@ -16,7 +16,7 @@ const teamMembers = [
   {
     name: "Abdou Bâ",
     role: "CTO & Co-Fondateur",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop&crop=face",
+    image: "",
     bio: "Data Scientist & Ingénieur logiciel. Architecture technique, MLOps et pipeline bioinformatique.",
     credentials: ["Ingénieur Logiciel", "MLOps", "Bioinformatique"],
     social: { linkedin: "#", twitter: "#" },
@@ -24,7 +24,7 @@ const teamMembers = [
   {
     name: "Fatou Soumaya Wade",
     role: "CMO",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop&crop=face",
+    image: "",
     bio: "Experte en Marketing Digital. Acquisition client et brand building pour la santé digitale.",
     credentials: ["Marketing Digital", "Brand Building", "Community"],
     social: { linkedin: "#", twitter: "#" },
@@ -32,7 +32,7 @@ const teamMembers = [
   {
     name: "Yaye Maimouna Sakho",
     role: "Chief Scientific Officer",
-    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop&crop=face",
+    image: "",
     bio: "Microbiologiste . Validation clinique et relations académiques.",
     credentials: ["MD PhD", "Microbiologie", "Recherche"],
     social: { linkedin: "#", twitter: "#" },
