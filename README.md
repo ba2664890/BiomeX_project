@@ -85,14 +85,15 @@ python manage.py createsuperuser
 
 # Run server
 python manage.py runserver
-
-
+```
+```
 Frontend
 cd frontend
 
 # Install dependencies
 flutter pub get
-
+```
+```
 # Run application
 flutter run
 Configuration
@@ -103,6 +104,8 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 
 # Neon PostgreSQL
 DATABASE_URL=postgresql://user:password@host.neon.tech/database?sslmode=require
+```
+```
 Flutter Configuration
 
 Modify lib/constants/api_constants.dart:
@@ -136,6 +139,8 @@ biomex_app/
     │   ├── widgets/         # Reusable widgets
     │   └── main.dart
     └── pubspec.yaml
+```
+```
 API Endpoints
 Authentication
 POST /api/token/ - Login
@@ -156,6 +161,10 @@ Tracking
 GET /api/tracking/dashboard/ - Dashboard
 POST /api/tracking/wellness/create/ - Daily check-in
 GET /api/tracking/insights/ - Weekly insights
+
+```
+
+```
 Deployment
 Backend (Railway / Render / Heroku)
 # Create Procfile
@@ -163,7 +172,7 @@ echo "web: gunicorn biomex.wsgi:application" > Procfile
 
 # Deploy
 git push origin main
-
+```
 For Render (Docker service):
 
 # Root Directory: biomex_app/backend
