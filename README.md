@@ -1,227 +1,193 @@
 # BiomeX_project
 
-# BiomeX - Application Mobile
+# BiomeX - Mobile Application
 
-BiomeX est une plateforme IA pour l'analyse du microbiome et la médecine préventive personnalisée en Afrique.
+BiomeX is an AI-powered platform for microbiome analysis and personalized preventive medicine in Africa.
 
 ## Architecture
 
-Ce projet est composé de deux parties :
+This project consists of two parts:
 
 ### Backend (Django)
-- **Framework**: Django 4.2 + Django REST Framework
-- **Base de données**: PostgreSQL (Neon)
-- **Authentification**: JWT (JSON Web Tokens)
-- **Documentation**: API RESTful
+- **Framework**: Django 4.2 + Django REST Framework  
+- **Database**: PostgreSQL (Neon)  
+- **Authentication**: JWT (JSON Web Tokens)  
+- **Documentation**: RESTful API  
 
 ### Frontend (Flutter)
-- **Framework**: Flutter 3.x
-- **State Management**: Provider
-- **HTTP Client**: Dio + http
-- **Charts**: fl_chart
-- **Storage**: flutter_secure_storage
+- **Framework**: Flutter 3.x  
+- **State Management**: Provider  
+- **HTTP Client**: Dio + http  
+- **Charts**: fl_chart  
+- **Storage**: flutter_secure_storage  
 
-## Fonctionnalités
+## Features
 
-### Authentification
-- Inscription / Connexion
-- Profil utilisateur
-- Gestion des préférences alimentaires et allergies
-- Paramètres de confidentialité
+### Authentication
+- Sign up / Login  
+- User profile  
+- Dietary preferences and allergy management  
+- Privacy settings  
 
 ### Microbiome
-- Score de diversité microbienne
-- Équilibre bactérien
-- Marqueurs de santé
-- Historique des scores
-- Commande de kits de test
+- Microbial diversity score  
+- Bacterial balance  
+- Health markers  
+- Score history  
+- Test kit ordering  
 
 ### Nutrition
-- Super-aliments personnalisés
-- Aliments à limiter
-- Substitutions alimentaires
-- Calendrier des récoltes saisonnières
-- Recettes recommandées
+- Personalized superfoods  
+- Foods to limit  
+- Food substitutions  
+- Seasonal harvest calendar  
+- Recommended recipes  
 
-### Suivi
-- Bilan quotidien (digestion, énergie, sommeil, peau)
-- Graphiques d'évolution
-- Insights hebdomadaires
-- Rappels de tests
+### Tracking
+- Daily check-in (digestion, energy, sleep, skin)  
+- Progress charts  
+- Weekly insights  
+- Test reminders  
 
 ## Installation
 
-### Prérequis
-- Python 3.11+
-- Flutter 3.0+
-- PostgreSQL (ou compte Neon)
+### Prerequisites
+- Python 3.11+  
+- Flutter 3.0+  
+- PostgreSQL (or Neon account)  
 
 ### Backend
 
 ```bash
 cd backend
 
-# Créer un environnement virtuel
+# Create virtual environment
 python -m venv venv
 
-# Activer l'environnement virtuel
+# Activate virtual environment
 # Windows:
 venv\Scripts\activate
 # macOS/Linux:
 source venv/bin/activate
 
-# Installer les dépendances
+# Install dependencies
 pip install -r requirements.txt
 
-# Configurer les variables d'environnement
+# Configure environment variables
 cp .env.example .env
-# Éditer .env avec vos configurations
+# Edit .env with your configuration
 
-# Créer la base de données
+# Create database
 python manage.py migrate
 
-# Créer un superutilisateur
+# Create superuser
 python manage.py createsuperuser
 
-# Lancer le serveur
+# Run server
 python manage.py runserver
-```
 
-### Frontend
 
-```bash
+Frontend
 cd frontend
 
-# Installer les dépendances
+# Install dependencies
 flutter pub get
 
-# Lancer l'application
+# Run application
 flutter run
-```
-
-## Configuration
-
-### Variables d'environnement Backend (.env)
-
-```env
-SECRET_KEY=votre-cle-secrete
+Configuration
+Backend Environment Variables (.env)
+SECRET_KEY=your-secret-key
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 
 # Neon PostgreSQL
 DATABASE_URL=postgresql://user:password@host.neon.tech/database?sslmode=require
-```
+Flutter Configuration
 
-### Configuration Flutter
+Modify lib/constants/api_constants.dart:
 
-Modifier `lib/constants/api_constants.dart` :
-
-```dart
-// Pour Android Emulator
+// For Android Emulator
 static const String baseUrl = 'http://10.0.2.2:8000';
 
-// Pour iOS Simulator
+// For iOS Simulator
 static const String baseUrl = 'http://localhost:8000';
 
-// Pour Production
-static const String baseUrl = 'https://votre-api.com';
-```
-
-## Structure du projet
-
-```
+// For Production
+static const String baseUrl = 'https://your-api.com';
+Project Structure
 biomex_app/
 ├── backend/
-│   ├── biomex/              # Configuration Django
-│   ├── users/               # Authentification & profils
-│   ├── microbiome/          # Analyses microbiome
-│   ├── nutrition/           # Aliments & recettes
-│   ├── tracking/            # Suivi de santé
-│   ├── recommendations/     # Recommandations
+│   ├── biomex/              # Django configuration
+│   ├── users/               # Authentication & profiles
+│   ├── microbiome/          # Microbiome analysis
+│   ├── nutrition/           # Foods & recipes
+│   ├── tracking/            # Health tracking
+│   ├── recommendations/     # Recommendations
 │   └── requirements.txt
 │
 └── frontend/
     ├── lib/
-    │   ├── constants/       # Thèmes & API
-    │   ├── models/          # Modèles de données
-    │   ├── services/        # Services API
+    │   ├── constants/       # Themes & API
+    │   ├── models/          # Data models
+    │   ├── services/        # API services
     │   ├── providers/       # State management
-    │   ├── screens/         # Écrans
-    │   ├── widgets/         # Widgets réutilisables
+    │   ├── screens/         # Screens
+    │   ├── widgets/         # Reusable widgets
     │   └── main.dart
     └── pubspec.yaml
-```
-
-## API Endpoints
-
-### Authentification
-- `POST /api/token/` - Login
-- `POST /api/token/refresh/` - Rafraîchir token
-- `POST /api/users/register/` - Inscription
-- `GET/PUT /api/users/profile/` - Profil
-
-### Microbiome
-- `GET /api/microbiome/dashboard-scores/` - Scores actuels
-- `GET /api/microbiome/latest/` - Dernière analyse
-- `GET /api/microbiome/bacteria-balance/` - Équilibre bactérien
-- `POST /api/microbiome/request-kit/` - Commander un kit
-
-### Nutrition
-- `GET /api/nutrition/superfoods/` - Super-aliments
-- `GET /api/nutrition/foods-to-avoid/` - Aliments à limiter
-- `GET /api/nutrition/substitutions/` - Substitutions
-- `GET /api/nutrition/seasonal/` - Calendrier saisonnier
-
-### Suivi
-- `GET /api/tracking/dashboard/` - Tableau de bord
-- `POST /api/tracking/wellness/create/` - Bilan quotidien
-- `GET /api/tracking/insights/` - Insights hebdomadaires
-
-## Déploiement
-
-### Backend (Railway/Render/Heroku)
-
-```bash
-# Créer un Procfile
+API Endpoints
+Authentication
+POST /api/token/ - Login
+POST /api/token/refresh/ - Refresh token
+POST /api/users/register/ - Register
+GET/PUT /api/users/profile/ - Profile
+Microbiome
+GET /api/microbiome/dashboard-scores/ - Current scores
+GET /api/microbiome/latest/ - Latest analysis
+GET /api/microbiome/bacteria-balance/ - Bacterial balance
+POST /api/microbiome/request-kit/ - Order test kit
+Nutrition
+GET /api/nutrition/superfoods/ - Superfoods
+GET /api/nutrition/foods-to-avoid/ - Foods to limit
+GET /api/nutrition/substitutions/ - Substitutions
+GET /api/nutrition/seasonal/ - Seasonal calendar
+Tracking
+GET /api/tracking/dashboard/ - Dashboard
+POST /api/tracking/wellness/create/ - Daily check-in
+GET /api/tracking/insights/ - Weekly insights
+Deployment
+Backend (Railway / Render / Heroku)
+# Create Procfile
 echo "web: gunicorn biomex.wsgi:application" > Procfile
 
-# Déployer
+# Deploy
 git push origin main
-```
 
-Pour Render (service Docker):
+For Render (Docker service):
 
-```bash
 # Root Directory: biomex_app/backend
 # Dockerfile: Dockerfile
-```
 
-Le script `backend/docker-entrypoint.sh` exécute automatiquement `makemigrations`, `migrate`, `collectstatic`, puis démarre Gunicorn.
-L'image Docker `python:3.11.11-slim` fixe Python pour éviter les incompatibilités de build avec Python 3.14.
+The script backend/docker-entrypoint.sh automatically runs makemigrations, migrate, collectstatic, then starts Gunicorn.
+The Docker image python:3.11.11-slim locks the Python version to avoid build issues with Python 3.14.
 
-### Frontend
-
-```bash
+Frontend
 # Build Android
 flutter build apk --release
 
 # Build iOS
 flutter build ios --release
-```
+Contribution
+Fork the project
+Create a branch (git checkout -b feature/AmazingFeature)
+Commit changes (git commit -m 'Add some AmazingFeature')
+Push to branch (git push origin feature/AmazingFeature)
+Open a Pull Request
+License
 
-## Contribution
+This project is licensed under the MIT License. See the LICENSE file for more details.
 
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/AmazingFeature`)
-3. Commit les changements (`git commit -m 'Add some AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
-
-## Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
-## Contact
-
-- Email: contact@biomex.ai
-- Site web: www.biomex.ai
+Contact
+Email: contact@biomex.ai
+Website: www.biomex.ai
