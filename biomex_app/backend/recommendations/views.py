@@ -293,6 +293,8 @@ class RAGChatbotView(APIView):
         payload = serializer.validated_data
         service = BiomexRAGService()
 
+        import dataclasses
+
         try:
             result = service.answer_question(
                 user=request.user,
@@ -300,7 +302,7 @@ class RAGChatbotView(APIView):
                 top_k=payload.get("top_k"),
                 namespace=(payload.get("namespace") or "").strip() or None,
             )
-            return Response(result, status=status.HTTP_200_OK)
+            return Response(dataclasses.asdict(result) if dataclasses.is_dataclass(result) else result, status=status.HTTP_200_OK)
         except RAGConfigurationError as exc:
             return Response(
                 {"error": str(exc)},
