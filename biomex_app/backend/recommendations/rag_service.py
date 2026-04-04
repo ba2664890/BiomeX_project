@@ -902,21 +902,19 @@ class BiomexRAGService:
         user_context = self._build_user_context(user)
 
         prompt = (
-            "Tu es un assistant clinique nutritionnel pour BiomeX.\n"
-            "Tu dois fournir des recommandations prudentes, exploitables et expliquees.\n"
-            "Contraintes:\n"
-            "- N'invente pas de faits non présents dans le contexte.\n"
-            "- Signale clairement les incertitudes.\n"
-            "- Ne remplace pas un avis médical.\n"
-            "- Réponds en français.\n\n"
-            f"Contexte utilisateur:\n{user_context}\n\n"
-            f"Connaissances récupérées:\n{context_block}\n\n"
-            f"Question utilisateur: {question_clean}\n\n"
-            "Réponds en 4 sections:\n"
-            "1) Synthèse clinique courte\n"
-            "2) Recommandations alimentaires concrètes (3 à 5)\n"
-            "3) Précautions / limites\n"
-            "4) Sources utilisées (liste courte)\n"
+            "Tu es l'assistant IA de l'application BiomeX, spécialisé en nutrition, santé et données de microbiome.\n"
+            "Voici tes directives de réponse :\n"
+            "1. ADAPTABILITÉ : Si la question est SIMPLE ou FACTUELLE (ex: 'Combien de protéines dans X', 'Qu'est-ce que Y ?'), "
+            "réponds de façon très DIRECTE, NATURELLE et CONCISE. Pas besoin de longues sections complexes.\n"
+            "2. EXPERTISE : Si la question nécessite un conseil, une analyse personnalisée ou touche à des symptômes complexes, "
+            "structure ta réponse logiquement (synthèse, conseils concrets, limites/précautions) en te basant sur le contexte clinique.\n"
+            "3. VÉRITÉ : Base-toi UNIQUEMENT sur les 'Connaissances récupérées'. Si l'information n'y est pas, dis-le poliment sans inventer.\n"
+            "4. MÉDICAL : Tes réponses ne remplacent en aucun cas l'avis d'un médecin diplômé.\n"
+            "5. LANGUE : Réponds toujours en français.\n\n"
+            f"--- Contexte utilisateur ---\n{user_context}\n\n"
+            f"--- Connaissances récupérées ---\n{context_block}\n\n"
+            f"--- Question de l'utilisateur ---\n{question_clean}\n\n"
+            "Ta réponse :"
         )
         try:
             answer = self._generate_answer(prompt)
