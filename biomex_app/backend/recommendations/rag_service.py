@@ -293,18 +293,25 @@ class BiomexRAGService:
         return []
 
     def _embed_text(self, text: str) -> list[float]:
+        results = self._embed_batch([text])
+        return results[0] if results else []
+
+    def _embed_batch(self, texts: list[str]) -> list[list[float]]:
         self._validate_rag_config()
-        if not text.strip():
-            raise RAGServiceError("Le texte à encoder est vide.")
+        valid_texts = [t.strip() for t in texts if t.strip()]
+        if not valid_texts:
+            return []
+        
+        import sys
+        print(f"DEBUG: _embed_batch processing {len(valid_texts)} texts...", file=sys.stderr, flush=True)
 
         attempts: list[tuple[str, str, dict[str, Any]]] = []
-
         if self.hf_embedding_url:
             attempts.append(
                 (
                     "custom embedding endpoint",
                     self.hf_embedding_url,
-                    {"inputs": text, "options": {"wait_for_model": True}},
+                    {"inputs": valid_texts, "options": {"wait_for_model": True}},
                 )
             )
 
@@ -313,17 +320,12 @@ class BiomexRAGService:
                 (
                     "hf-inference features pipeline",
                     f"{self.hf_router_base_url}/pipeline/feature-extraction/{self.hf_embedding_model}",
-                    {"inputs": text, "options": {"wait_for_model": True}},
+                    {"inputs": valid_texts, "options": {"wait_for_model": True}},
                 ),
                 (
                     "router task pipeline",
                     f"{self.hf_router_base_url}/hf-inference/models/{self.hf_embedding_model}/pipeline/feature-extraction",
-                    {"inputs": text, "options": {"wait_for_model": True}},
-                ),
-                (
-                    "router models directly",
-                    f"{self.hf_router_base_url}/hf-inference/models/{self.hf_embedding_model}",
-                    {"inputs": text, "options": {"wait_for_model": True}},
+                    {"inputs": valid_texts, "options": {"wait_for_model": True}},
                 ),
             ]
         )
@@ -335,7 +337,7 @@ class BiomexRAGService:
                 data = self._hf_post_json(
                     url=url,
                     payload=payload,
-                    timeout=90,
+                    timeout=120,
                     error_prefix=f"Hugging Face embedding error [{label}]",
                 )
                 break
@@ -345,24 +347,25 @@ class BiomexRAGService:
         else:
             raise RAGServiceError(" | ".join(errors) if errors else "Embedding indisponible.")
 
+        if isinstance(data, list) and data and isinstance(data[0], list):
+            # Check if it's a 3D array (batch x tokens x features) or 2D (batch x features)
+            if isinstance(data[0][0], (int, float)):
+                return [[float(x) for x in row] for row in data]
+
         parsed = self._parse_embedding_response(data)
         if parsed:
-            return parsed
-
-        # Possible response shapes:
-        # 1) [0.01, 0.02, ...]
-        # 2) [[token_1...], [token_2...], ...] -> mean pool
-        # 3) [[[token_1...], ...]] -> first batch + mean pool
+            return [parsed]
+        
+        # Fallback for various shapes
         if isinstance(data, list) and data:
             first = data[0]
             if isinstance(first, (int, float)):
-                return [float(x) for x in data]
+                return [[float(x) for x in data]]
             if isinstance(first, list) and first and isinstance(first[0], (int, float)):
-                return self._mean_pool([[float(x) for x in row] for row in data])
-            if isinstance(first, list) and first and isinstance(first[0], list):
-                return self._mean_pool([[float(x) for x in row] for row in first])
+                # If we have a single embedding as a list of tokens/features
+                return [self._parse_embedding_response(data)]
 
-        raise RAGServiceError("Format de réponse embedding inattendu.")
+        return []
 
     @staticmethod
     def _extract_generation_text(data: Any) -> str:
@@ -718,25 +721,57 @@ class BiomexRAGService:
         else:
             raise RAGServiceError(f"Source RAG non supportée: {source}")
 
-        vectors = []
-        for chunk in chunks:
-            embedding = self._embed_text(chunk.text)
-            vectors.append(
-                {
-                    "id": chunk.chunk_id,
-                    "values": embedding,
-                    "metadata": {
-                        **chunk.metadata,
-                        "text": chunk.text[:3000],
-                    },
-                }
-            )
+        # Optimized batch processing for embedding and upsert
+        vectors: list[dict[str, Any]] = []
+        total_count = 0
+        # Hugging Face Inference API works well with batches of ~32
+        chunk_batch_size = 32
+        upsert_batch_size = 100
 
-        self._upsert_vectors(vectors=vectors, namespace=namespace_value)
+        # Cast chunks to list to avoid linter confusion if it's a generator
+        chunks_list = list(chunks)
+
+        for i in range(0, len(chunks_list), chunk_batch_size):
+            batch_chunks = chunks_list[i : i + chunk_batch_size]
+            texts = [c.text for c in batch_chunks]
+            
+            try:
+                import sys
+                print(f"PROGRESS: Ingesting batch {i//chunk_batch_size + 1}/{len(chunks_list)//chunk_batch_size + 1}", file=sys.stderr, flush=True)
+                embeddings = self._embed_batch(texts)
+                for j, emb in enumerate(embeddings):
+                    if j < len(batch_chunks) and emb:
+                        vectors.append({
+                            "id": batch_chunks[j].chunk_id,
+                            "values": emb,
+                            "metadata": {
+                                **batch_chunks[j].metadata,
+                                "text": batch_chunks[j].text[:3000],
+                            },
+                        })
+                
+                # Check for Pinecone upsert batching
+                while len(vectors) >= upsert_batch_size:
+                    batch_to_upsert = vectors[:upsert_batch_size]
+                    import sys
+                    print(f"PROGRESS: Upserting {len(batch_to_upsert)} vectors to Pinecone...", file=sys.stderr, flush=True)
+                    self._upsert_vectors(batch_to_upsert, namespace_value)
+                    total_count += len(batch_to_upsert)
+                    vectors = vectors[upsert_batch_size:]
+                    
+            except RAGServiceError as exc:
+                logger.warning(f"⚠️ Erreur pendant l'ingestion d'un batch: {exc}")
+                continue
+
+        # Final upsert for remaining vectors
+        if vectors:
+            self._upsert_vectors(vectors, namespace_value)
+            total_count += len(vectors)
+
         return {
             "source": source,
             "namespace": namespace_value,
-            "ingested_count": len(vectors),
+            "ingested_count": total_count,
         }
 
     @staticmethod
@@ -812,10 +847,37 @@ class BiomexRAGService:
 
         try:
             query_vector = self._embed_text(question_clean)
-            matches = self._query_vectors(query_vector=query_vector, top_k=top_k_value, namespace=namespace_value)
+            
+            # Multi-namespace search logic
+            namespaces_to_search = [namespace_value]
+            if namespace_value == self.default_namespace:
+                for ns in ["biomex-documents", "biomex-microbiome"]:
+                    if ns not in namespaces_to_search:
+                        namespaces_to_search.append(ns)
+            
+            all_matches = []
+            for ns in namespaces_to_search:
+                try:
+                    ns_matches = self._query_vectors(
+                        query_vector=query_vector, 
+                        top_k=top_k_value, 
+                        namespace=ns
+                    )
+                    # Annotate matches with their source namespace
+                    for m in ns_matches:
+                        if "metadata" not in m: m["metadata"] = {}
+                        m["metadata"]["_namespace"] = ns
+                    all_matches.extend(ns_matches)
+                except RAGServiceError as e:
+                    warnings.append(f"Namespace '{ns}' indisponible: {e}")
+                    continue
+
+            # Global ranking by score across namespaces
+            all_matches.sort(key=lambda x: x.get("score", 0), reverse=True)
+            top_matches = all_matches[:top_k_value]
 
             chars = 0
-            for match in matches:
+            for match in top_matches:
                 metadata = match.get("metadata", {}) or {}
                 snippet = str(metadata.get("text", "")).strip()
                 if not snippet:

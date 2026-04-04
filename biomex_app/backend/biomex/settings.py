@@ -233,7 +233,7 @@ JAZZMIN_UI_TWEAKS = {
 # RAG / LLM Configuration
 RAG_HF_API_TOKEN = os.getenv('RAG_HF_API_TOKEN', '')
 RAG_HF_GENERATION_MODEL = os.getenv('RAG_HF_GENERATION_MODEL', 'microsoft/BioGPT-Large')
-RAG_HF_EMBEDDING_MODEL = os.getenv('RAG_HF_EMBEDDING_MODEL', 'sentence-transformers/all-MiniLM-L6-v2')
+RAG_HF_EMBEDDING_MODEL = os.getenv('RAG_HF_EMBEDDING_MODEL', 'intfloat/multilingual-e5-large')
 RAG_HF_ROUTER_BASE_URL = os.getenv('RAG_HF_ROUTER_BASE_URL', 'https://router.huggingface.co')
 RAG_HF_ROUTER_PROVIDER = os.getenv('RAG_HF_ROUTER_PROVIDER', '')
 RAG_HF_GENERATION_URL = os.getenv('RAG_HF_GENERATION_URL', '')

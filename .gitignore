@@ -6,3 +6,10 @@
 
 # Local Flutter build symlink/output
 /biomex_app/frontend/build
+
+# Data and sensitive files
+Data/
+.env
+*.log
+__pycache__/
+*.pyc
