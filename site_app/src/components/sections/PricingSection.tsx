@@ -31,9 +31,9 @@ type PricingPlan = {
 const pricingPlans: PricingPlan[] = [
   {
     name: "Offre pediatrique",
-    price: "Prix a valider",
-    priceFCFA: "Pouvoir d'achat local",
-    priceFcfaValue: 0,
+    price: "75 €",
+    priceFCFA: "50.000 FCFA",
+    priceFcfaValue: 50000,
     description: "Enfants de 0 a 15 ans et familles",
     features: [
       "Test microbiome adapte a l'age de l'enfant",
@@ -47,9 +47,9 @@ const pricingPlans: PricingPlan[] = [
   },
   {
     name: "Troubles digestifs",
-    price: "Prix a valider",
-    priceFCFA: "Pouvoir d'achat local",
-    priceFcfaValue: 0,
+    price: "75 €",
+    priceFCFA: "50.000 FCFA",
+    priceFcfaValue: 50000,
     description: "Patients avec dysbiose ou intolérances suspectées",
     features: [
       "Test microbiome avance",
