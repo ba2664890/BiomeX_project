@@ -18,11 +18,11 @@ const stats = [
     description: "Identification jusqu'au genre",
   },
   {
-    value: 75,
+    value: 4,
     prefix: "",
-    suffix: "%",
-    label: "Économie vs international",
-    description: "Prix adapté au pouvoir d'achat local",
+    suffix: "",
+    label: "Segments cibles",
+    description: "Familles, patients, labos, recherche/pharma",
   },
 ];
 

@@ -18,16 +18,6 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 
-const features = [
-  "Kit de prelevement non invasif",
-  "Analyse microbiome 16S rRNA",
-  "Rapport clair pour le patient",
-  "Rapport medical pour le praticien",
-  "Plan nutritionnel local personnalise",
-  "Suivi a 3 mois",
-  "Support prioritaire WhatsApp",
-];
-
 type PricingPlan = {
   name: string;
   price: string;
@@ -40,21 +30,67 @@ type PricingPlan = {
 
 const pricingPlans: PricingPlan[] = [
   {
-    name: "Kit Standard",
-    price: "75$",
-    priceFCFA: "75 000 FCFA",
-    priceFcfaValue: 75000,
-    description: "Test microbiome et nutrition personnalisee",
-    features: features,
+    name: "Offre pediatrique",
+    price: "Prix pilote",
+    priceFCFA: "A valider au Senegal",
+    priceFcfaValue: 0,
+    description: "Enfants de 0 a 15 ans et familles",
+    features: [
+      "Test microbiome adapte a l'age de l'enfant",
+      "Questionnaire alimentaire et digestif pour les parents",
+      "Rapport clair pour les parents",
+      "Rapport medical pour pediatre, medecin ou nutritionniste",
+      "Plan alimentaire progressif et prudent",
+      "Suivi a 3 mois et retest apres 6 mois",
+    ],
     popular: true,
   },
   {
-    name: "Kit Premium",
-    price: "200$",
-    priceFCFA: "120 000 FCFA",
-    priceFcfaValue: 120000,
-    description: "Analyse avancee pour suivi specialise",
-    features: [...features, "Profil fonctionnel complet", "Retest conseille a 6 mois"],
+    name: "Troubles digestifs",
+    price: "Prix pilote",
+    priceFCFA: "A valider au Senegal",
+    priceFcfaValue: 0,
+    description: "Patients avec dysbiose ou intolérances suspectées",
+    features: [
+      "Test microbiome avance",
+      "Analyse IA des desequilibres microbiens",
+      "Rapport destine au medecin",
+      "Plan nutritionnel compatible avec le microbiome",
+      "Suivi a 3 mois",
+      "Retest apres 6 mois",
+    ],
+    popular: false,
+  },
+  {
+    name: "BiomeX Lab Partner",
+    price: "Partenariat",
+    priceFCFA: "Partage de revenus",
+    priceFcfaValue: 0,
+    description: "Laboratoires d'analyses medicales",
+    features: [
+      "Kits co-brandes",
+      "Protocole de collecte",
+      "Sequencage en partenariat",
+      "Analyse IA BiomeX",
+      "Montee en gamme du laboratoire",
+      "Nouveau segment premium",
+    ],
+    popular: false,
+  },
+  {
+    name: "Recherche & Pharma",
+    price: "Sur devis",
+    priceFCFA: "Cohortes anonymisees",
+    priceFcfaValue: 0,
+    description: "Universites, pharma et nutrition medicale",
+    features: [
+      "Donnees microbiome africaines contextualisees",
+      "Cohortes anonymisees et gouvernance ethique",
+      "Partenariats de recherche microbiome",
+      "Identification de biomarqueurs",
+      "Projets nutrition et sante publique",
+      "Support bioinformatique avance",
+    ],
     popular: false,
   },
 ];
@@ -646,7 +682,7 @@ export default function PricingSection() {
 
   const contactB2B = () => {
     window.open(
-      "mailto:partenariats@biomex.ai?subject=Demande%20partenariat%20B2B",
+      "mailto:partenariats@biomex.ai?subject=Demande%20offre%20BiomeX",
       "_blank",
     );
   };
@@ -663,13 +699,13 @@ export default function PricingSection() {
         >
           <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold text-accent">
             <Sparkles className="h-4 w-4" />
-            Tarifs Accessibles
+            Offres par cible
           </span>
           <h2 className="text-3xl font-extrabold text-primary md:text-4xl">
-            Des prix adaptes a l&apos;Afrique
+            Des prix adaptes au pouvoir d&apos;achat local
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-            60-75% moins cher que les concurrents internationaux grace au sequencage local.
+            Le pitch deck prevoit une validation du prix pendant le pilote Senegal, avec des offres adaptees aux patients, aux familles, aux laboratoires et aux partenaires de recherche.
           </p>
         </motion.div>
 
@@ -688,7 +724,7 @@ export default function PricingSection() {
               {plan.popular && (
                 <div className="absolute right-0 top-0 flex items-center gap-1 rounded-bl-xl bg-accent px-4 py-2 text-xs font-bold text-white">
                   <Star className="h-3 w-3" />
-                  Plus populaire
+                  Priorite 1
                 </div>
               )}
 
@@ -728,13 +764,19 @@ export default function PricingSection() {
                     ? "bg-accent text-white shadow-xl shadow-accent/30 hover:scale-[1.02]"
                     : "bg-primary text-white shadow-xl shadow-primary/20 hover:scale-[1.02]"
                 }`}
-                onClick={() => openOrderDialog(plan)}
+                onClick={() => {
+                  if (plan.priceFcfaValue > 0) {
+                    openOrderDialog(plan);
+                    return;
+                  }
+                  contactB2B();
+                }}
               >
-                Commander maintenant
+                {plan.priceFcfaValue > 0 ? "Commander maintenant" : "Demander l'offre"}
               </Button>
 
               <p className="mt-4 text-center text-xs text-slate-500">
-                Paiement securise - Verification commande et paiement activees.
+                Prix final, logistique et acceptabilite medicale a valider pendant le pilote.
               </p>
             </motion.div>
           ))}
@@ -748,11 +790,11 @@ export default function PricingSection() {
           transition={{ delay: 0.3 }}
         >
           <h4 className="text-lg font-bold text-primary">
-            Vous etes une clinique ou un professionnel de sante ?
+            Cibles prioritaires issues du pitch deck
           </h4>
           <p className="mt-2 text-sm text-slate-600">
-            Tarifs B2B speciaux a partir de <strong className="text-primary">67$</strong> par
-            kit en volume. Contactez-nous pour un partenariat.
+            Priorite 1 : enfants et familles. Priorite 2 : patients avec troubles digestifs ou suspicion de dysbiose.
+            Priorite 3 : laboratoires d'analyses medicales. Priorite 4 : recherche, pharma et institutions.
           </p>
           <Button
             variant="outline"

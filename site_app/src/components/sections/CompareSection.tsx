@@ -15,7 +15,7 @@ const features = [
     others: false,
   },
   {
-    name: "Prix adapté au marché africain",
+    name: "Prix adapte au pouvoir d'achat local",
     biomex: true,
     others: false,
   },
@@ -212,7 +212,7 @@ export default function CompareSection() {
             <Zap className="h-8 w-8 text-accent" />
             <div className="text-left">
               <p className="font-bold text-primary">Une plateforme locale, pas une importation</p>
-              <p className="text-sm text-slate-600">Données africaines, aliments locaux, partenaires cliniques et prix adaptés.</p>
+              <p className="text-sm text-slate-600">Données africaines, aliments locaux, partenaires cliniques et prix adaptes au pouvoir d'achat local.</p>
             </div>
             <a
               href="#pricing"

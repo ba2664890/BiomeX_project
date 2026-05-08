@@ -26,9 +26,9 @@ const faqCategories = [
           "Vous recevrez vos résultats complets sous 21 jours maximum après réception de votre échantillon. Un email vous notifiera dès que votre tableau de bord personnalisé est prêt sur l'application BiomeX Care.",
       },
       {
-        question: "Quelle est la différence entre Standard et Premium ?",
+        question: "Quelles sont les offres prioritaires ?",
         answer:
-          "Le Kit Standard (75$) utilise le séquençage 16S rRNA avec identification taxonomique jusqu'au genre. Le Kit Premium (200$) utilise la métagénomique Shotgun pour un profil fonctionnel complet, incluant l'analyse du mycobiome et des voies métaboliques.",
+          "Le pitch deck priorise quatre cibles : enfants et familles, patients avec troubles digestifs ou suspicion de dysbiose, laboratoires d'analyses médicales, puis recherche/pharma/institutions. Chaque offre combine test microbiome, analyse IA, rapport adapté au destinataire et accompagnement nutritionnel ou scientifique selon le segment.",
       },
       {
         question: "À quelle fréquence refaire le test ?",
@@ -68,7 +68,7 @@ const faqCategories = [
       {
         question: "Quels sont les tarifs pratiqués ?",
         answer:
-          "Kit Standard : 75$ (75 000 FCFA) - analyse microbiome 16S rRNA, rapport patient, rapport médical et plan nutritionnel local. Kit Premium : 200$ (120 000 FCFA) - analyse avancée avec profil fonctionnel complet. Des offres B2B sont prévues pour laboratoires, cliniques et cohortes de recherche.",
+          "Le pitch deck ne fixe pas encore un prix public unique. Il prévoit une validation du prix pendant le pilote au Sénégal afin d'adapter l'offre au pouvoir d'achat local, au parcours patient, à la logistique et à l'acceptabilité médicale. Les offres sont structurées par cible : pédiatrie/familles, patients avec troubles digestifs, laboratoires partenaires, recherche/pharma/institutions.",
       },
       {
         question: "Livrez-vous partout au Sénégal ?",

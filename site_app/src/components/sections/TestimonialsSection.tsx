@@ -15,7 +15,7 @@ const testimonials = [
     quote: "Grâce à BiomeX, j'ai découvert que mon microbiome réagissait très bien aux aliments locaux comme le mil et le fonio. En 3 mois, mes problèmes de digestion ont disparu. Une révélation pour ma santé !",
     improvement: "+35% diversité",
     rating: 5,
-    product: "Kit Standard",
+    product: "Troubles digestifs",
   },
   {
     id: 2,
@@ -25,7 +25,7 @@ const testimonials = [
     quote: "En tant que professionnel de santé, je recommande BiomeX à mes patients diabétiques. L'analyse est rigoureuse et les recommandations sont basées sur des données africaines, pas sur des standards occidentaux.",
     improvement: "Expert validé",
     rating: 5,
-    product: "B2B Clinique",
+    product: "Medecin prescripteur",
   },
   {
     id: 3,
@@ -35,7 +35,7 @@ const testimonials = [
     quote: "J'utilise BiomeX avec mes clients depuis 6 mois. Je peux enfin leur donner des conseils basés sur leur propre microbiome et sur des aliments qu'ils consomment réellement.",
     improvement: "50+ patients",
     rating: 5,
-    product: "Pro Panel",
+    product: "Nutritionniste partenaire",
   },
   {
     id: 4,
@@ -45,7 +45,7 @@ const testimonials = [
     quote: "BiomeX m'a aidé à optimiser mon alimentation pour mes entraînements. J'ai découvert que les céréales locales comme le niébé étaient parfaites pour mon microbiome intestinal.",
     improvement: "+20% énergie",
     rating: 5,
-    product: "Sport Plan",
+    product: "Plan nutritionnel local",
   },
   {
     id: 5,
@@ -55,7 +55,7 @@ const testimonials = [
     quote: "Après des années de problèmes digestifs, BiomeX m'a permis de comprendre mon corps. Les recommandations sur le pain de mil et les feuilles de baobab ont changé ma vie quotidienne.",
     improvement: "Santé améliorée",
     rating: 5,
-    product: "Kit Standard",
+    product: "Troubles digestifs",
   },
 ];
 
