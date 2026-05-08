@@ -19,12 +19,12 @@ import {
 import { toast } from "@/hooks/use-toast";
 
 const features = [
-  "Kit de prelevement stabilise 14 jours",
-  "Analyse 16S rRNA haute resolution",
-  "Guide nutritionnel personnalise",
-  "Recommandations aliments locaux (Mil, Fonio, Niebe)",
-  "Tableau de bord IA a vie",
-  "App multilingue (FR, Wolof, Dioula)",
+  "Kit de prelevement non invasif",
+  "Analyse microbiome 16S rRNA",
+  "Rapport clair pour le patient",
+  "Rapport medical pour le praticien",
+  "Plan nutritionnel local personnalise",
+  "Suivi a 3 mois",
   "Support prioritaire WhatsApp",
 ];
 
@@ -44,7 +44,7 @@ const pricingPlans: PricingPlan[] = [
     price: "75$",
     priceFCFA: "75 000 FCFA",
     priceFcfaValue: 75000,
-    description: "Analyse 16S rRNA complete",
+    description: "Test microbiome et nutrition personnalisee",
     features: features,
     popular: true,
   },
@@ -53,8 +53,8 @@ const pricingPlans: PricingPlan[] = [
     price: "200$",
     priceFCFA: "120 000 FCFA",
     priceFcfaValue: 120000,
-    description: "Metagenomique Shotgun",
-    features: [...features, "Profil fonctionnel complet", "Analyse mycobiome"],
+    description: "Analyse avancee pour suivi specialise",
+    features: [...features, "Profil fonctionnel complet", "Retest conseille a 6 mois"],
     popular: false,
   },
 ];

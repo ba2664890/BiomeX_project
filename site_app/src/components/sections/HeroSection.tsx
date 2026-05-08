@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Play, Verified, Microscope, TrendingUp, Leaf, Shield, Award, Users, Sparkles, Dna, ArrowRight } from "lucide-react";
+import { Play, Verified, Microscope, TrendingUp, Leaf, Shield, Award, Users, Dna, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -16,9 +16,9 @@ const avatars = [
 ];
 
 const trustBadges = [
-  { icon: Shield, label: "Certifié ISO 13485" },
-  { icon: Award, label: "Partenariat UCAD" },
-  { icon: Users, label: "2 400+ clients" },
+  { icon: Shield, label: "Données sécurisées" },
+  { icon: Award, label: "Partenariats labo" },
+  { icon: Users, label: "Pilote Sénégal" },
 ];
 
 const floatingCardTemplates = [
@@ -232,38 +232,38 @@ export default function HeroSection() {
                   whileHover={{ scale: 1.05 }}
                 >
                   <Verified className="h-4 w-4" />
-                  Technologie africaine
+                  Médecine de précision africaine
                 </motion.span>
                 <motion.span
                   className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-5 py-2 text-sm font-bold text-accent border border-accent/20"
                   whileHover={{ scale: 1.05 }}
                 >
-                  🇸🇳 Made in Sénégal
+                  Made in Sénégal
                 </motion.span>
               </div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-[1.05] tracking-tight">
-                <span className="text-primary">Votre microbiome.</span>
+                <span className="text-primary">Comprendre.</span>
                 <br />
-                <span className="text-primary">Votre ADN.</span>
+                <span className="text-primary">Prévenir.</span>
                 <br />
                 <span className="bg-gradient-to-r from-accent via-yellow-600 to-accent bg-clip-text text-transparent">
-                  Votre santé.
+                  Mieux manger.
                 </span>
               </h1>
               
               <p className="mt-8 text-lg sm:text-xl text-slate-600 leading-relaxed max-w-xl">
-                Explorez les <strong className="text-primary">100 trillions de micro-organismes</strong> qui composent votre identité génétique unique. 
-                Technologie de séquençage <strong className="text-accent">16S rRNA</strong> conçue pour les populations africaines.
+                BiomeX aide les patients, parents et médecins à relier troubles digestifs, microbiome intestinal et alimentation locale. 
+                Notre IA transforme le séquençage <strong className="text-accent">16S rRNA</strong> en plans nutritionnels personnalisés autour du mil, du fonio, du niébé et du moringa.
               </p>
 
               {/* Key benefits */}
               <div className="mt-8 grid grid-cols-2 gap-4">
                 {[
-                  { icon: Microscope, text: "Séquençage 16S rRNA", highlight: "95% précision" },
-                  { icon: TrendingUp, text: "Résultats en 21 jours", highlight: "Rapide" },
-                  { icon: Leaf, text: "Aliments locaux analysés", highlight: "Mil, Fonio" },
-                  { icon: Shield, text: "Données 100% confidentielles", highlight: "Sécurisé" },
+                  { icon: Microscope, text: "Test microbiome à domicile", highlight: "Non invasif" },
+                  { icon: TrendingUp, text: "Rapport patient et médecin", highlight: "< 21 jours" },
+                  { icon: Leaf, text: "Nutrition locale adaptée", highlight: "Mil, Fonio, Niébé" },
+                  { icon: Shield, text: "Approche préventive", highlight: "Données sécurisées" },
                 ].map((benefit, i) => (
                   <motion.div
                     key={i}
@@ -295,7 +295,7 @@ export default function HeroSection() {
                   className="rounded-full bg-primary px-10 py-7 text-base font-bold text-white shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all group"
                   onClick={() => scrollToSection("#pricing")}
                 >
-                  Commander mon kit
+                  Commander un kit pilote
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </motion.div>
@@ -351,7 +351,7 @@ export default function HeroSection() {
               </div>
               <div>
                 <p className="text-base font-medium text-slate-700">
-                  <span className="font-bold text-primary">2 400+ membres</span> à Dakar nous font confiance
+                  <span className="font-bold text-primary">Pilote Sénégal</span> pour valider le parcours patient
                 </p>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="flex items-center gap-0.5">
@@ -361,8 +361,8 @@ export default function HeroSection() {
                       </svg>
                     ))}
                   </div>
-                  <span className="text-sm font-semibold text-slate-600">4.9/5</span>
-                  <span className="text-sm text-slate-400">sur 850+ avis</span>
+                  <span className="text-sm font-semibold text-slate-600">500 à 1 000 tests</span>
+                  <span className="text-sm text-slate-400">objectif de validation</span>
                 </div>
               </div>
             </motion.div>

@@ -10,7 +10,7 @@ const features = [
     others: false,
   },
   {
-    name: "Séquençage local (UCAD/Pasteur)",
+    name: "Réseau de laboratoires africains",
     biomex: true,
     others: false,
   },
@@ -25,12 +25,12 @@ const features = [
     others: "Partiel",
   },
   {
-    name: "App multilingue (FR, Wolof, Dioula)",
+    name: "Parcours patient culturellement adapté",
     biomex: true,
     others: false,
   },
   {
-    name: "Kit stabilisé 14j température ambiante",
+    name: "Rapport patient + rapport médecin",
     biomex: true,
     others: "Variable",
   },
@@ -45,20 +45,20 @@ const features = [
     others: false,
   },
   {
-    name: "Base de données africaines",
-    biomex: "5 000+ cible",
+    name: "Base de données microbiome africaine",
+    biomex: "Propriétaire",
     others: "0",
   },
   {
-    name: "Prix du kit",
-    biomex: "75 $",
-    others: "300-400 $",
+    name: "Segments B2B et recherche",
+    biomex: "Labos, pharma, institutions",
+    others: "Peu localisé",
   },
 ];
 
 const competitors = [
-  { name: "Viome (USA)", price: "300-400 $", focus: "Données non africaines" },
-  { name: "ZOE (UK)", price: "~300 $", focus: "UK/US exclusivement" },
+  { name: "Viome (USA)", price: "Premium", focus: "Données et régimes occidentaux" },
+  { name: "ZOE (UK)", price: "Premium", focus: "Marchés UK/US" },
   { name: "Sun Genomics", price: "200 $+", focus: "Pas de présence africaine" },
   { name: "Carbiotix (EU)", price: "100 $+", focus: "Focus Europe" },
 ];
@@ -101,7 +101,7 @@ export default function CompareSection() {
             BiomeX vs. Concurrents
           </h2>
           <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
-            Le seul acteur à combiner données locales, prix adapté et mission d&apos;équité scientifique.
+            Une solution construite pour les réalités alimentaires, médicales et économiques africaines.
           </p>
         </motion.div>
 
@@ -211,8 +211,8 @@ export default function CompareSection() {
           <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-6 rounded-2xl bg-accent/10 border border-accent/20">
             <Zap className="h-8 w-8 text-accent" />
             <div className="text-left">
-              <p className="font-bold text-primary">Économisez jusqu&apos;à 75%</p>
-              <p className="text-sm text-slate-600">75$ vs 300-400$ chez les concurrents internationaux</p>
+              <p className="font-bold text-primary">Une plateforme locale, pas une importation</p>
+              <p className="text-sm text-slate-600">Données africaines, aliments locaux, partenaires cliniques et prix adaptés.</p>
             </div>
             <a
               href="#pricing"
@@ -222,7 +222,7 @@ export default function CompareSection() {
                 document.querySelector("#pricing")?.scrollIntoView({ behavior: "smooth" });
               }}
             >
-              Commander maintenant
+              Voir les offres
             </a>
           </div>
         </motion.div>

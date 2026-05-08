@@ -18,7 +18,7 @@ const faqCategories = [
       {
         question: "Comment fonctionne le kit BiomeX ?",
         answer:
-          "Le kit contient un tube stabilisant RNAlater adapté au climat tropical, un swab stérile et un guide illustré multilingue (français, wolof, dioula). L'échantillon reste stable 14 jours à température ambiante - pas besoin de chaîne du froid. Nous livrons gratuitement à Dakar et environs.",
+          "Le patient réalise un prélèvement non invasif à domicile ou avec un laboratoire partenaire. L'échantillon est ensuite séquencé, analysé par l'IA BiomeX, puis restitué sous forme d'un rapport patient, d'un rapport médical et d'un plan nutritionnel personnalisé.",
       },
       {
         question: "Combien de temps pour recevoir mes résultats ?",
@@ -68,7 +68,7 @@ const faqCategories = [
       {
         question: "Quels sont les tarifs pratiqués ?",
         answer:
-          "Kit Standard : 75$ (75 000 FCFA) - Séquençage 16S rRNA. Kit Premium : 200$ (120 000 FCFA) - Métagénomique Shotgun. Abonnement BiomeX Care : 7,5-12,5$/mois. Tarifs B2B pour cliniques à partir de 67$ en volume. Nos prix sont 60-75% inférieurs aux concurrents internationaux grâce au séquençage local.",
+          "Kit Standard : 75$ (75 000 FCFA) - analyse microbiome 16S rRNA, rapport patient, rapport médical et plan nutritionnel local. Kit Premium : 200$ (120 000 FCFA) - analyse avancée avec profil fonctionnel complet. Des offres B2B sont prévues pour laboratoires, cliniques et cohortes de recherche.",
       },
       {
         question: "Livrez-vous partout au Sénégal ?",

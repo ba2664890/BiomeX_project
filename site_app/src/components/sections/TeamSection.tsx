@@ -47,10 +47,10 @@ const partners = [
 ];
 
 const achievements = [
-  { value: "350K$", label: "Levée Seed" },
-  { value: "5 000+", label: "Profils cibles An 3" },
-  { value: "5", label: "Pays cibles à 36 mois" },
-  { value: "BEP", label: "Fin année 3" },
+  { value: "500-1K", label: "Tests pilotes visés" },
+  { value: "10-20", label: "Médecins prescripteurs" },
+  { value: "2-3", label: "Laboratoires partenaires" },
+  { value: "60 mois", label: "Scale panafricain" },
 ];
 
 const containerVariants = {
@@ -92,8 +92,7 @@ export default function TeamSection() {
             Une équipe passionnée
           </h2>
           <p className="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">
-            Deux cofondateurs data scientists avec les compétences techniques pour livrer 
-            le produit sans dépendance externe coûteuse.
+            Une startup sénégalaise spécialisée dans la médecine de précision, le séquençage du microbiome et l'ingénierie des données.
           </p>
         </motion.div>
 
@@ -113,13 +112,23 @@ export default function TeamSection() {
             >
               <div className="relative mb-4">
                 <div className="h-28 w-28 mx-auto rounded-full overflow-hidden border-4 border-primary/10 group-hover:border-accent transition-colors">
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    width={112}
-                    height={112}
-                    className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
-                  />
+                  {member.image ? (
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      width={112}
+                      height={112}
+                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-primary/10 text-2xl font-extrabold text-primary">
+                      {member.name
+                        .split(" ")
+                        .map((part) => part[0])
+                        .join("")
+                        .slice(0, 2)}
+                    </div>
+                  )}
                 </div>
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-accent text-white text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
                   {member.role.split(" ")[0]}

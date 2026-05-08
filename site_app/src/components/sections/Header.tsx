@@ -10,7 +10,8 @@ const navLinks = [
   { href: "#decouvrir", label: "Découvrir" },
   { href: "#comment-ca-marche", label: "Comment ça marche" },
   { href: "#science", label: "Science" },
-  { href: "#blog", label: "Blog" },
+  { href: "#marche", label: "Marché" },
+  { href: "#about", label: "Équipe" },
 ];
 
 export default function Header() {

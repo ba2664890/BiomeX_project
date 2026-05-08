@@ -10,6 +10,7 @@ import ScienceSection from "@/components/sections/ScienceSection";
 import CompareSection from "@/components/sections/CompareSection";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import PricingSection from "@/components/sections/PricingSection";
+import MarketSection from "@/components/sections/MarketSection";
 import BlogSection from "@/components/sections/BlogSection";
 import FAQSection from "@/components/sections/FAQSection";
 import TeamSection from "@/components/sections/TeamSection";
@@ -29,6 +30,7 @@ export default function Home() {
         <CompareSection />
         <TestimonialsSection />
         <PricingSection />
+        <MarketSection />
         <BlogSection />
         <FAQSection />
         <TeamSection />

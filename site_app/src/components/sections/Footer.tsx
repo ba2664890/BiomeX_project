@@ -21,9 +21,9 @@ const platformLinks = [
 ];
 
 const companyLinks: FooterLink[] = [
-  { label: "À propos", href: "#science" },
-  { label: "Partenaires", href: "#comment-ca-marche" },
-  { label: "Blog", href: "#blog" },
+  { label: "À propos", href: "#about" },
+  { label: "Marché", href: "#marche" },
+  { label: "Partenaires", href: "#about" },
   { label: "Presse", href: "mailto:presse@biomex.ai", external: true },
 ];
 
@@ -116,8 +116,8 @@ export default function Footer() {
               </span>
             </button>
             <p className="mt-6 text-slate-400 leading-relaxed text-sm">
-              L&apos;avenir de la santé préventive en Afrique, alimenté par la
-              génétique et l&apos;intelligence artificielle.
+              Médecine de précision sénégalaise basée sur le microbiome,
+              l&apos;alimentation locale et l&apos;intelligence artificielle.
             </p>
           </motion.div>
 
@@ -180,7 +180,7 @@ export default function Footer() {
               Newsletter
             </h4>
             <p className="mb-4 text-sm text-slate-400">
-              Recevez nos dernières découvertes santé.
+              Recevez nos avancées sur le microbiome africain.
             </p>
             <form onSubmit={handleSubscribe} className="flex flex-col gap-3">
               <Input
@@ -217,7 +217,7 @@ export default function Footer() {
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           <p className="text-sm text-slate-500">
-            © 2024 BiomeX Health. Tous droits réservés.
+            © 2026 BiomeX Health. Tous droits réservés.
           </p>
           <div className="flex gap-6">
             {socialLinks.map((social, index) => (

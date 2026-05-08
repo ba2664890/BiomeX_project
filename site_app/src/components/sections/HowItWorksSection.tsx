@@ -8,9 +8,9 @@ const steps = [
   {
     number: "01",
     title: "BiomeX Kit",
-    titleExtra: "Prélèvement à domicile",
+    titleExtra: "Prélèvement non invasif",
     description:
-      "Kit stabilisé à température ambiante pendant 14 jours - plus besoin de chaîne du froid. Guide illustré multilingue (français, wolof, dioula). Livraison gratuite à Dakar.",
+      "Prélèvement à domicile par le patient ou en laboratoire partenaire, puis dépôt de l'échantillon pour analyse. Le parcours est pensé pour les familles, les patients digestifs et les médecins prescripteurs.",
     image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&h=600&fit=crop",
     imageAlt: "Kit de test BiomeX",
     reverse: false,
@@ -19,9 +19,9 @@ const steps = [
   {
     number: "02",
     title: "BiomeX Lab",
-    titleExtra: "Séquençage local",
+    titleExtra: "Cartographie du microbiome",
     description:
-      "Séquençage 16S rRNA en partenariat avec UCAD et Institut Pasteur. Coût 40-50$ vs 150-300$ à l'international. Identification taxonomique avec précision ≥ 95%.",
+      "Séquençage 16S rRNA et métagénomique pour cartographier les bactéries intestinales, puis enrichir progressivement une base de données microbiome africaine.",
     image: null,
     imageAlt: "",
     reverse: true,
@@ -30,9 +30,9 @@ const steps = [
   {
     number: "03",
     title: "BiomeX AI",
-    titleExtra: "Analyse intelligente",
+    titleExtra: "Interprétation clinique",
     description:
-      "Pipeline bioinformatique QIIME2 + modèles prédictifs (Random Forest, XGBoost, PyTorch). Entraîné sur des données africaines pour des recommandations adaptées.",
+      "L'IA analyse la taxonomie microbienne, les fonctions cellulaires et les questionnaires alimentaires pour prédire les risques digestifs, métaboliques et les intolérances suspectées.",
     image: null,
     imageAlt: "",
     reverse: false,
@@ -41,9 +41,9 @@ const steps = [
   {
     number: "04",
     title: "BiomeX Care",
-    titleExtra: "Votre dashboard santé",
+    titleExtra: "Plan nutritionnel local",
     description:
-      "Application mobile avec recommandations personnalisées basées sur les aliments locaux (mil, fonio, niébé, baobab). Fonctionne offline. Suivi longitudinal.",
+      "Rapport clair pour le patient, rapport médical pour le praticien, recommandations progressives avec mil, fonio, niébé, moringa et suivi à 3 mois.",
     image: null,
     imageAlt: "",
     reverse: true,

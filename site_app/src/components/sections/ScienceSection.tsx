@@ -8,8 +8,8 @@ const stats = [
   {
     value: 100,
     suffix: " T",
-    label: "Micro-organismes analysés",
-    description: "Dans votre microbiome intestinal",
+    label: "Micro-organismes dans l'intestin",
+    description: "Écosystème au coeur de la digestion",
   },
   {
     value: 95,
@@ -22,7 +22,7 @@ const stats = [
     prefix: "",
     suffix: "%",
     label: "Économie vs international",
-    description: "75$ vs 300-400$",
+    description: "Prix adapté au pouvoir d'achat local",
   },
 ];
 
@@ -43,7 +43,7 @@ const scienceFeatures = [
     icon: Database,
     title: "Base de données africaine",
     description:
-      "Objectif 5 000 profils ouest-africains en année 3. La plus grande base de données microbiomiques africaines annotée cliniquement.",
+      "Cohorte pilote de 500 à 1 000 utilisateurs, puis base africaine propriétaire pour adapter les algorithmes par pays, alimentation et profil.",
   },
   {
     icon: Microscope,
@@ -152,7 +152,7 @@ export default function ScienceSection() {
             <span className="text-accent"> l&apos;Afrique</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-slate-400 text-lg">
-            Démocratiser la médecine de précision en combinant séquençage local, bioinformatique et IA adaptée.
+            Démocratiser la médecine de précision en combinant prélèvement non invasif, séquençage, bioinformatique et IA nutritionnelle adaptée.
           </p>
         </motion.div>
 

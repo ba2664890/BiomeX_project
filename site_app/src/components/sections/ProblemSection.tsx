@@ -9,37 +9,37 @@ const problems = [
     icon: Globe,
     iconBg: "bg-red-50",
     iconColor: "text-red-500",
-    title: "95% de manque de données",
+    title: "Données africaines absentes",
     description:
-      "Les études microbiomiques mondiales proviennent de populations occidentales. L'Afrique subsaharienne représente moins de 3% des participants aux études mondiales.",
-    stat: "< 3%",
-    statLabel: "de représentation africaine",
+      "Les référentiels microbiome et génomiques restent dominés par des données occidentales, alors que les régimes alimentaires africains produisent des profils biologiques distincts.",
+    stat: "1,1%",
+    statLabel: "des GWAS publiées en 2025",
   },
   {
     icon: TrendingUp,
     iconBg: "bg-orange-50",
     iconColor: "text-orange-500",
-    title: "+60% hausse du diabète",
+    title: "Errance digestive longue",
     description:
-      "Transition nutritionnelle accélérée en Afrique entre 2010 et 2024, aggravée par l'urbanisation rapide et les régimes occidentalisés.",
-    stat: "500K+",
-    statLabel: "diabétiques au Sénégal",
+      "Dysbiose, intolérances, ballonnements, douleurs abdominales et troubles fonctionnels restent trop souvent sous-diagnostiqués faute d'outils adaptés.",
+    stat: "5-7 ans",
+    statLabel: "de délai fréquent",
   },
   {
     icon: Heart,
     iconBg: "bg-blue-50",
     iconColor: "text-blue-500",
-    title: "Probiotiques inefficaces",
+    title: "Nutrition trop générique",
     description:
-      "Les probiotiques standardisés montrent une efficacité réduite sur les populations locales. Les modèles occidentaux sont inadaptés aux profils métaboliques africains.",
-    stat: "3x",
-    statLabel: "moins efficace localement",
+      "Les conseils \"manger moins gras, moins sucré, plus de fibres\" ne suffisent pas lorsque deux personnes tolèrent différemment le mil, le lait, le riz ou le niébé.",
+    stat: "1,4 Md+",
+    statLabel: "d'habitants concernés en Afrique",
   },
 ];
 
 const additionalStats = [
-  { value: 70, suffix: "%", label: "des maladies chroniques liées au microbiome" },
-  { value: 90, suffix: "%", label: "de sérotonine produite par le microbiome" },
+  { value: 70, suffix: "%", label: "des maladies chroniques influencées par le microbiome" },
+  { value: 90, suffix: "%", label: "de sérotonine produite dans l'intestin" },
   { value: 150, suffix: "x", label: "plus de gènes que le génome humain" },
 ];
 
@@ -116,7 +116,7 @@ export default function ProblemSection() {
             Pourquoi BiomeX est nécessaire
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-slate-500 text-lg">
-            Un biais scientifique majeur que nous devons corriger pour l&apos;Afrique.
+            Les patients ont besoin d&apos;une nutrition fondée sur leur biologie réelle, pas sur des recommandations importées.
           </p>
         </motion.div>
 
@@ -192,11 +192,10 @@ export default function ProblemSection() {
           transition={{ delay: 0.2 }}
         >
           <blockquote className="text-xl md:text-2xl font-medium leading-relaxed max-w-4xl mx-auto">
-            &quot;L&apos;Afrique subsaharienne représente moins de 3% des participants aux études microbiomiques mondiales, 
-            alors qu&apos;elle abrite la plus grande diversité génétique humaine.&quot;
+            &quot;BiomeX adapte l&apos;alimentation au microbiome intestinal pour réduire l&apos;incertitude, mieux orienter la prise en charge et valoriser les aliments locaux africains.&quot;
           </blockquote>
           <p className="mt-4 text-white/70 text-sm">
-            — Nature Microbiology, 2023
+            — Positionnement issu du pitch deck BiomeX
           </p>
         </motion.div>
       </div>
