@@ -62,7 +62,7 @@ const itemVariants = {
   },
 };
 
-const MICROBIOME_DEMO_VIDEO_URL = "https://www.youtube.com/embed/1sISguPDlhY?autoplay=1&rel=0";
+const MICROBIOME_DEMO_VIDEO_URL = "https://www.youtube.com/embed/pNIEEMb8Ork?autoplay=1&rel=0";
 
 export default function HeroSection() {
   const [isVideoOpen, setIsVideoOpen] = useState(false);

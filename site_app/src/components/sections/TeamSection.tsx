@@ -11,7 +11,7 @@ const teamMembers = [
     image: "",
     bio: "Data Scientist avec une vision stratégique pour démocratiser la médecine de précision en Afrique.",
     credentials: ["Data Scientist", "Fundraising", "Vision stratégique"],
-    social: { linkedin: "#", twitter: "#" },
+    social: { linkedin: "https://www.linkedin.com/in/mouhammadou-dia-31b4612b6/", twitter: "#" },
   },
   {
     name: "Abdou Bâ",
@@ -19,23 +19,23 @@ const teamMembers = [
     image: "",
     bio: "Data Scientist & Ingénieur logiciel. Architecture technique, MLOps et pipeline bioinformatique.",
     credentials: ["Ingénieur Logiciel", "MLOps", "Bioinformatique"],
-    social: { linkedin: "#", twitter: "#" },
+    social: { linkedin: "https://www.linkedin.com/in/abdou-ba-572242220/", twitter: "#" },
   },
   {
     name: "Fatou Soumaya Wade",
-    role: "CMO",
+    role: "CMO & Co-Fondateur",
     image: "",
     bio: "Experte en Marketing Digital. Acquisition client et brand building pour la santé digitale.",
     credentials: ["Marketing Digital", "Brand Building", "Community"],
-    social: { linkedin: "#", twitter: "#" },
+    social: { linkedin: "https://www.linkedin.com/in/fatousoumayawade/", twitter: "#" },
   },
   {
     name: "Yaye Maimouna Sakho",
-    role: "Chief Scientific Officer",
+    role: "Chief Scientific Officer & Co-Fondateur",
     image: "",
     bio: "Microbiologiste . Validation clinique et relations académiques.",
     credentials: ["MD PhD", "Microbiologie", "Recherche"],
-    social: { linkedin: "#", twitter: "#" },
+    social: { linkedin: "https://www.linkedin.com/in/yaaye-maimouna-sakho-99738b255/", twitter: "#" },
   },
 ];
 
