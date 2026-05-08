@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Loader2, LocateFixed, Sparkles, Star } from "lucide-react";
+import { Check, Loader2, LocateFixed, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,8 +31,8 @@ type PricingPlan = {
 const pricingPlans: PricingPlan[] = [
   {
     name: "Offre pediatrique",
-    price: "Prix pilote",
-    priceFCFA: "A valider au Senegal",
+    price: "Prix a valider",
+    priceFCFA: "Pouvoir d'achat local",
     priceFcfaValue: 0,
     description: "Enfants de 0 a 15 ans et familles",
     features: [
@@ -47,8 +47,8 @@ const pricingPlans: PricingPlan[] = [
   },
   {
     name: "Troubles digestifs",
-    price: "Prix pilote",
-    priceFCFA: "A valider au Senegal",
+    price: "Prix a valider",
+    priceFCFA: "Pouvoir d'achat local",
     priceFcfaValue: 0,
     description: "Patients avec dysbiose ou intolérances suspectées",
     features: [
@@ -63,8 +63,8 @@ const pricingPlans: PricingPlan[] = [
   },
   {
     name: "BiomeX Lab Partner",
-    price: "Partenariat",
-    priceFCFA: "Partage de revenus",
+    price: "Partage de revenus",
+    priceFCFA: "Kits co-brandes",
     priceFcfaValue: 0,
     description: "Laboratoires d'analyses medicales",
     features: [
@@ -79,7 +79,7 @@ const pricingPlans: PricingPlan[] = [
   },
   {
     name: "Recherche & Pharma",
-    price: "Sur devis",
+    price: "Data Manning",
     priceFCFA: "Cohortes anonymisees",
     priceFcfaValue: 0,
     description: "Universites, pharma et nutrition medicale",
@@ -699,13 +699,13 @@ export default function PricingSection() {
         >
           <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold text-accent">
             <Sparkles className="h-4 w-4" />
-            Offres par cible
+            Offres et prix
           </span>
           <h2 className="text-3xl font-extrabold text-primary md:text-4xl">
             Des prix adaptes au pouvoir d&apos;achat local
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-            Le pitch deck prevoit une validation du prix pendant le pilote Senegal, avec des offres adaptees aux patients, aux familles, aux laboratoires et aux partenaires de recherche.
+            Le Senegal sert de marche test pour valider le kit, la technologie BiomeX, le parcours patient, le prix, la logistique et l&apos;acceptabilite medicale.
           </p>
         </motion.div>
 
@@ -721,13 +721,6 @@ export default function PricingSection() {
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
             >
-              {plan.popular && (
-                <div className="absolute right-0 top-0 flex items-center gap-1 rounded-bl-xl bg-accent px-4 py-2 text-xs font-bold text-white">
-                  <Star className="h-3 w-3" />
-                  Priorite 1
-                </div>
-              )}
-
               <div className="mb-8 text-center">
                 <h3 className="text-xl font-bold text-primary">{plan.name}</h3>
                 <p className="mt-1 text-sm text-slate-500">{plan.description}</p>
@@ -772,38 +765,11 @@ export default function PricingSection() {
                   contactB2B();
                 }}
               >
-                {plan.priceFcfaValue > 0 ? "Commander maintenant" : "Demander l'offre"}
+                Demander l&apos;offre
               </Button>
-
-              <p className="mt-4 text-center text-xs text-slate-500">
-                Prix final, logistique et acceptabilite medicale a valider pendant le pilote.
-              </p>
             </motion.div>
           ))}
         </div>
-
-        <motion.div
-          className="mt-12 rounded-2xl border border-primary/10 bg-primary/5 p-6 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-        >
-          <h4 className="text-lg font-bold text-primary">
-            Cibles prioritaires issues du pitch deck
-          </h4>
-          <p className="mt-2 text-sm text-slate-600">
-            Priorite 1 : enfants et familles. Priorite 2 : patients avec troubles digestifs ou suspicion de dysbiose.
-            Priorite 3 : laboratoires d'analyses medicales. Priorite 4 : recherche, pharma et institutions.
-          </p>
-          <Button
-            variant="outline"
-            className="mt-4 rounded-full border-primary/20 text-primary hover:bg-primary/5"
-            onClick={contactB2B}
-          >
-            Contacter l&apos;equipe B2B
-          </Button>
-        </motion.div>
       </div>
 
       <Dialog open={isOrderDialogOpen} onOpenChange={setIsOrderDialogOpen}>

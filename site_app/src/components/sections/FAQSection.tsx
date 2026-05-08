@@ -68,7 +68,7 @@ const faqCategories = [
       {
         question: "Quels sont les tarifs pratiqués ?",
         answer:
-          "Le pitch deck ne fixe pas encore un prix public unique. Il prévoit une validation du prix pendant le pilote au Sénégal afin d'adapter l'offre au pouvoir d'achat local, au parcours patient, à la logistique et à l'acceptabilité médicale. Les offres sont structurées par cible : pédiatrie/familles, patients avec troubles digestifs, laboratoires partenaires, recherche/pharma/institutions.",
+          "BiomeX prévoit des prix adaptés au pouvoir d'achat local. Le Sénégal sert de marché test pour valider le kit, la technologie BiomeX, le parcours patient, le prix, la logistique et l'acceptabilité médicale.",
       },
       {
         question: "Livrez-vous partout au Sénégal ?",
