@@ -11,7 +11,7 @@ const steps = [
     titleExtra: "Prélèvement non invasif",
     description:
       "Prélèvement à domicile par le patient ou en laboratoire partenaire, puis dépôt de l'échantillon pour analyse. Le parcours est pensé pour les familles, les patients digestifs et les médecins prescripteurs.",
-    image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&h=600&fit=crop",
+    image: "/open-box-edit.webp",
     imageAlt: "Kit de test BiomeX",
     reverse: false,
     tags: ["14 jours stabilité", "Sans froid", "Multilingue"],
